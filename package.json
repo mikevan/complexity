@@ -1,0 +1,34 @@
+{
+  "name": "@projectrevivesolutions/complexity",
+  "version": "0.1.0",
+  "description": "Three complexity measures per function over a tree-sitter syntax tree: cyclomatic (McCabe), Cognitive Complexity (Campbell), and MikeVan's Better Cognitive Complexity (MBCC). The one scorer every Project Revive Solutions tool measures with.",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikevan/complexity.git"
+  },
+  "homepage": "https://projectrevivesolutions.com",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "docs",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepare": "npm run build"
+  },
+  "peerDependencies": {
+    "web-tree-sitter": ">=0.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.17",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7",
+    "web-tree-sitter": "0.27.0"
+  }
+}
