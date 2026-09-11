@@ -18,3 +18,5 @@ export { measureTypeScript, cyclomaticOf as cyclomaticOfTypeScript } from './typ
 export { MEASURES } from './types';
 export type { FunctionMeasures, MeasuredFunction } from './types';
 export { findPythonFunctions, findTypeScriptFunctions } from './find';
+export { extractScript, isSingleFileComponent } from './sfc';
+export type { ScriptBlock, ScriptExtraction, ScriptLang } from './sfc';

@@ -161,6 +161,20 @@ ordered branch chains, minus what Campbell over-charges on exclusive chains.
   cases. Case guards are visited one level deeper and cost nothing
   themselves unless they hold a boolean run.
 
+- Single-file components (`.vue`, `.svelte`) are measured through their
+  script blocks only. `extractScript` (src/sfc.ts) returns the whole file
+  with everything outside the `<script>` blocks blanked character for
+  character, newlines kept, so the parsed tree's rows are the editor's
+  line numbers and no translation table exists to be wrong. Every block is
+  kept (Vue's `<script>` beside `<script setup>`, Svelte's `<script module>`
+  beside `<script>`); the grammar is tsx if any block asks for it, else
+  TypeScript if any block is `lang="ts"`, else JavaScript. The template
+  half is not parsed: its `v-if` and `{#if}` are decisions a reader has to
+  understand, and they wait for a later slot. Both tools count the lines
+  outside the blocks as declarations, covered or not, never scored for
+  density. A file with no script block returns undefined and every line
+  is outside.
+
 ## Sources
 
 - McCabe, Thomas J. "A Complexity Measure." *IEEE Transactions on Software
