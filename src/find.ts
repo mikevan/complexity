@@ -1,7 +1,7 @@
 /**
  * Function finders, for callers that do not already walk the tree
  * themselves. DeepTest keeps its own walk (it needs routes and depth as
- * well); RefactorIt and the tests use these. Names follow the same
+ * well); UntangleIt and the tests use these. Names follow the same
  * conventions DeepTest prints: a Python def by its name, a TypeScript
  * declaration or method by its name, an arrow or function expression by
  * the variable, property, or field it is assigned to, else "<anonymous>".

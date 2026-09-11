@@ -5,8 +5,12 @@
  *
  * Mapping (see the shared file for the rule each word means):
  *
- *   if                      structural; condition at this level, body one deeper
- *   elif / else             hybrid: +1, body one deeper
+ *   if / elif / else        one chain: Campbell charges the if as structural
+ *                           and each later branch as hybrid; MBCC charges
+ *                           the k-th branch k + nesting, unless the chain is
+ *                           exclusive (one value against constants), which
+ *                           costs one plus nesting like a match. Bodies one
+ *                           deeper either way.
  *   for / while             structural; loop `else` is hybrid
  *   except                  structural; try / else / finally cost nothing
  *   match                   structural, once, however many cases
@@ -26,6 +30,13 @@
  * Ordered-operand rule inputs: a call, an `await`, or a walrus (:=) makes an
  * operand impure; attribute and subscript access reach into their leftmost
  * name.
+ *
+ * Exclusive-chain inputs: a condition is an exclusive test when it is
+ * `x == C`, `C == x`, `x is C`, `x in (C, ...)`, or an `or` run of those on
+ * the same x, where x is a name or an attribute path and C is a literal
+ * (string, number, True, False, None), a literal tuple, list, or set of
+ * literals, an attribute whose last segment is Capitalised or ALL_CAPS
+ * (`Kind.A`, `Status.ACTIVE`), or an ALL_CAPS name.
  */
 import type { Node } from 'web-tree-sitter';
 import { BooleanRules, CognitiveCounter, functionsInRecursionCycles } from './counter';
@@ -57,7 +68,73 @@ const rules: BooleanRules = {
   },
   identifierName: (node) => (node.type === 'identifier' ? node.text : null),
   stopsAt: (node) => STOP.has(node.type),
+  exclusiveKey: (node) => exclusiveKey(node),
 };
+
+const LITERAL = new Set(['string', 'concatenated_string', 'integer', 'float', 'true', 'false', 'none']);
+const CONSTANT_NAME = /^[A-Z][A-Z0-9_]*$|^[A-Z][A-Za-z0-9]*$/;
+
+function isConstant(node: Node): boolean {
+  if (LITERAL.has(node.type)) {
+    return true;
+  }
+  if (node.type === 'unary_operator') {
+    return node.namedChildren.every((c) => c === null || isConstant(c));
+  }
+  if (node.type === 'tuple' || node.type === 'list' || node.type === 'set' || node.type === 'parenthesized_expression') {
+    return node.namedChildren.length > 0 && node.namedChildren.every((c) => c === null || isConstant(c));
+  }
+  if (node.type === 'attribute') {
+    const last = node.childForFieldName('attribute')?.text ?? '';
+    return CONSTANT_NAME.test(last);
+  }
+  return node.type === 'identifier' && /^[A-Z][A-Z0-9_]*$/.test(node.text);
+}
+
+function isDiscriminator(node: Node): boolean {
+  return node.type === 'identifier' || (node.type === 'attribute' && !isConstant(node));
+}
+
+/** See the header: the discriminated value's text for an exclusive test, else null. */
+function exclusiveKey(node: Node): string | null {
+  if (node.type === 'parenthesized_expression') {
+    const inner = node.namedChildren[0];
+    return inner ? exclusiveKey(inner) : null;
+  }
+  if (node.type === 'boolean_operator') {
+    if (node.childForFieldName('operator')?.text !== 'or') {
+      return null;
+    }
+    const left = node.childForFieldName('left');
+    const right = node.childForFieldName('right');
+    const l = left ? exclusiveKey(left) : null;
+    const r = right ? exclusiveKey(right) : null;
+    return l !== null && l === r ? l : null;
+  }
+  if (node.type !== 'comparison_operator') {
+    return null;
+  }
+  const operands = node.namedChildren.filter((c): c is Node => c !== null);
+  const operators = node.childrenForFieldName('operators').map((o) => o?.text ?? '');
+  if (operands.length !== 2 || operators.length !== 1) {
+    return null;
+  }
+  const [a, b] = operands;
+  const op = operators[0];
+  if (op === '==' || op === 'is') {
+    if (isDiscriminator(a) && isConstant(b)) {
+      return a.text;
+    }
+    if (isConstant(a) && isDiscriminator(b)) {
+      return b.text;
+    }
+    return null;
+  }
+  if (op === 'in' && isDiscriminator(a) && isConstant(b)) {
+    return a.text;
+  }
+  return null;
+}
 
 class Walker {
   readonly counter = new CognitiveCounter(rules);
@@ -109,22 +186,57 @@ class Walker {
     }
   }
 
+  /** The whole if / elif / else chain as one unit, so the branch rule can see its length and shape. */
   private visitIf(node: Node, nesting: number): void {
-    this.counter.structural(nesting);
-    this.visit(node.childForFieldName('condition'), nesting);
-    this.visit(node.childForFieldName('consequence'), nesting + 1);
+    const conditions: Node[] = [];
+    const bodies: Node[] = [];
+    const ifCondition = node.childForFieldName('condition');
+    if (ifCondition) {
+      conditions.push(ifCondition);
+    }
+    bodies.push(node.childForFieldName('consequence')!);
+    let hasElse = false;
     for (const alternative of node.childrenForFieldName('alternative')) {
       if (!alternative) {
         continue;
       }
-      this.counter.fundamental();
       if (alternative.type === 'elif_clause') {
-        this.visit(alternative.childForFieldName('condition'), nesting);
-        this.visit(alternative.childForFieldName('consequence'), nesting + 1);
+        const c = alternative.childForFieldName('condition');
+        if (c) {
+          conditions.push(c);
+        }
+        bodies.push(alternative.childForFieldName('consequence')!);
       } else {
-        this.visit(alternative.childForFieldName('body'), nesting + 1);
+        hasElse = true;
+        bodies.push(alternative.childForFieldName('body')!);
       }
     }
+    const branches = conditions.length + (hasElse ? 1 : 0);
+    const keys = conditions.map((c) => rules.exclusiveKey(c));
+    const exclusive = branches > 1 && keys.every((k) => k !== null && k === keys[0]);
+    this.counter.branchChain(branches, nesting, exclusive);
+    for (const condition of conditions) {
+      this.visitCondition(condition, nesting, exclusive);
+    }
+    for (const body of bodies) {
+      this.visit(body, nesting + 1);
+    }
+  }
+
+  /** A condition in an exclusive chain is a case list: its `or` runs charge Campbell only. */
+  private visitCondition(condition: Node, nesting: number, exclusive: boolean): void {
+    if (!exclusive) {
+      this.visit(condition, nesting);
+      return;
+    }
+    const inner = condition.type === 'parenthesized_expression' ? condition.namedChildren[0] ?? condition : condition;
+    if (inner.type === 'boolean_operator') {
+      for (const operand of this.counter.booleanSequence(inner, 'campbell')) {
+        this.visitCondition(operand, nesting, true);
+      }
+      return;
+    }
+    this.visit(inner, nesting);
   }
 
   private visitLoop(node: Node, nesting: number): void {

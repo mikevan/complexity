@@ -7,8 +7,12 @@
  *
  * Mapping:
  *
- *   if                       structural; condition at this level, body one deeper
- *   else if / else           hybrid: +1, body one deeper
+ *   if / else if / else      one chain: Campbell charges the if as structural
+ *                            and each later branch as hybrid; MBCC charges
+ *                            the k-th branch k + nesting, unless the chain
+ *                            is exclusive (one value against constants),
+ *                            which costs one plus nesting like a switch.
+ *                            Bodies one deeper either way.
  *   for / for-in / for-of / while / do   structural
  *   switch                   structural, once, however many cases
  *   catch                    structural; try and finally cost nothing
@@ -23,6 +27,13 @@
  * Ordered-operand rule inputs: a call, `new`, `await`, `yield`, an
  * assignment, or ++/-- makes an operand impure; member and subscript
  * access reach into their leftmost name (`this` counts as a name).
+ *
+ * Exclusive-chain inputs: a condition is an exclusive test when it is
+ * `x === C`, `x == C`, `C === x`, or an `||` run of those on the same x,
+ * where x is a name or a member path (`this.kind`, `event.type`) and C is a
+ * literal (string, number, true, false, null, undefined), a member
+ * expression whose last segment is Capitalised or ALL_CAPS (`Kind.A`,
+ * `Status.ACTIVE`), or an ALL_CAPS name.
  */
 import type { Node } from 'web-tree-sitter';
 import { BooleanRules, CognitiveCounter, functionsInRecursionCycles } from './counter';
@@ -59,7 +70,61 @@ const rules: BooleanRules = {
   },
   identifierName: (node) => (node.type === 'identifier' || node.type === 'this' ? node.text : null),
   stopsAt: (node) => FUNCTION_TYPES.has(node.type) || CLASS_TYPES.has(node.type),
+  exclusiveKey: (node) => exclusiveKey(node),
 };
+
+const LITERAL = new Set(['string', 'number', 'true', 'false', 'null', 'undefined']);
+const CONSTANT_NAME = /^[A-Z][A-Z0-9_]*$|^[A-Z][A-Za-z0-9]*$/;
+
+function isConstant(node: Node): boolean {
+  if (LITERAL.has(node.type)) {
+    return true;
+  }
+  if (node.type === 'unary_expression') {
+    return node.namedChildren.every((c) => c === null || isConstant(c));
+  }
+  if (node.type === 'member_expression') {
+    const last = node.childForFieldName('property')?.text ?? '';
+    return CONSTANT_NAME.test(last);
+  }
+  return node.type === 'identifier' && /^[A-Z][A-Z0-9_]*$/.test(node.text);
+}
+
+function isDiscriminator(node: Node): boolean {
+  return node.type === 'identifier' || node.type === 'this' || (node.type === 'member_expression' && !isConstant(node));
+}
+
+/** See the header: the discriminated value's text for an exclusive test, else null. */
+function exclusiveKey(node: Node): string | null {
+  if (node.type === 'parenthesized_expression') {
+    const inner = node.namedChildren[0];
+    return inner ? exclusiveKey(inner) : null;
+  }
+  if (node.type !== 'binary_expression') {
+    return null;
+  }
+  const operator = node.childForFieldName('operator')?.text ?? '';
+  const left = node.childForFieldName('left');
+  const right = node.childForFieldName('right');
+  if (!left || !right) {
+    return null;
+  }
+  if (operator === '||') {
+    const l = exclusiveKey(left);
+    const r = exclusiveKey(right);
+    return l !== null && l === r ? l : null;
+  }
+  if (operator !== '===' && operator !== '==') {
+    return null;
+  }
+  if (isDiscriminator(left) && isConstant(right)) {
+    return left.text;
+  }
+  if (isConstant(left) && isDiscriminator(right)) {
+    return right.text;
+  }
+  return null;
+}
 
 class Walker {
   readonly counter = new CognitiveCounter(rules);
@@ -74,8 +139,7 @@ class Walker {
     }
     switch (node.type) {
       case 'if_statement':
-        this.counter.structural(nesting);
-        this.visitIfParts(node, nesting);
+        this.visitIfChain(node, nesting);
         return;
       case 'for_statement':
       case 'for_in_statement':
@@ -133,22 +197,62 @@ class Walker {
     }
   }
 
-  /** Condition and consequence of an if, then its else-chain: `else if` is hybrid, and so is a final `else`. */
-  private visitIfParts(node: Node, nesting: number): void {
-    this.visit(node.childForFieldName('condition'), nesting);
-    this.visit(node.childForFieldName('consequence'), nesting + 1);
-    const alternative = node.childForFieldName('alternative');
-    if (!alternative) {
+  /**
+   * The whole if / else if / else chain as one unit, so the branch rule can
+   * see its length and shape. An `else` whose statement is an `if` is the
+   * next link in the chain; any other `else` ends it.
+   */
+  private visitIfChain(node: Node, nesting: number): void {
+    const conditions: Node[] = [];
+    const bodies: (Node | null)[] = [];
+    let hasElse = false;
+    let current: Node | null = node;
+    while (current) {
+      const condition = current.childForFieldName('condition');
+      if (condition) {
+        conditions.push(condition);
+      }
+      bodies.push(current.childForFieldName('consequence'));
+      const alternative = current.childForFieldName('alternative');
+      if (!alternative) {
+        break;
+      }
+      // alternative is an else_clause holding either an if_statement (else if) or a statement.
+      const inner: Node | null = alternative.namedChildren[0] ?? null;
+      if (inner?.type === 'if_statement') {
+        current = inner;
+      } else {
+        hasElse = true;
+        bodies.push(inner);
+        break;
+      }
+    }
+    const branches = conditions.length + (hasElse ? 1 : 0);
+    const keys = conditions.map((c) => rules.exclusiveKey(c));
+    const exclusive = branches > 1 && keys.every((k) => k !== null && k === keys[0]);
+    this.counter.branchChain(branches, nesting, exclusive);
+    for (const condition of conditions) {
+      this.visitCondition(condition, nesting, exclusive);
+    }
+    for (const body of bodies) {
+      this.visit(body, nesting + 1);
+    }
+  }
+
+  /** A condition in an exclusive chain is a case list: its `||` runs charge Campbell only. */
+  private visitCondition(condition: Node, nesting: number, exclusive: boolean): void {
+    if (!exclusive) {
+      this.visit(condition, nesting);
       return;
     }
-    // alternative is an else_clause holding either an if_statement (else if) or a statement.
-    const inner = alternative.namedChildren[0] ?? null;
-    this.counter.fundamental();
-    if (inner?.type === 'if_statement') {
-      this.visitIfParts(inner, nesting);
-    } else {
-      this.visit(inner, nesting + 1);
+    const inner = condition.type === 'parenthesized_expression' ? condition.namedChildren[0] ?? condition : condition;
+    if (inner.type === 'binary_expression' && rules.booleanParts(inner)) {
+      for (const operand of this.counter.booleanSequence(inner, 'campbell')) {
+        this.visitCondition(operand, nesting, true);
+      }
+      return;
     }
+    this.visit(inner, nesting);
   }
 
   private visitCatch(handler: Node | null, nesting: number): void {

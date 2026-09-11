@@ -6,7 +6,7 @@ export interface MeasuredFunction {
   node: Node;
 }
 
-/** The three numbers every Project Revive Solutions tool reads. */
+/** The three numbers every tool in MikeVan's AI Development Toolkit reads. */
 export interface FunctionMeasures {
   /** McCabe cyclomatic complexity: 1 + forks. "Ways through" in the tools. */
   cyclomatic: number;

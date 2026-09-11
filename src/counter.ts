@@ -25,16 +25,32 @@
  * Two numbers come out of one walk:
  *
  *   campbell   the whitepaper's rule for boolean runs: one per run
- *   mbcc       MikeVan's Better Cognitive Complexity: a run counts one only
- *              when its operands are independent and pure. When order
- *              carries meaning, it counts one per operand, because the
- *              reader must trace the short-circuit to understand the code.
- *              Order carries meaning when any operand contains a call or an
+ *   mbcc       MikeVan's Better Cognitive Complexity: Campbell's rule with
+ *              one change, applied in two places. Where order carries
+ *              meaning, the reader pays per step.
+ *
+ *              Ordered operands: a boolean run counts one only when its
+ *              operands are independent and pure. When order carries
+ *              meaning, it counts one per operand, because the reader must
+ *              trace the short-circuit to understand the code. Order
+ *              carries meaning when any operand contains a call or an
  *              assignment, or when a later operand reaches into (member
  *              access, subscript) a name an earlier operand mentioned.
  *
+ *              Ordered branches: in an if / elif / else chain whose branches
+ *              test different facts, the k-th branch costs k plus the
+ *              nesting charge, because the reader can only understand the
+ *              third branch by holding the failure of the first two. A
+ *              chain that tests one value against constants (`kind == "a"`,
+ *              `elif kind == "b"`, ...) is exclusive by inspection and is a
+ *              switch in disguise: it costs one plus nesting for the whole
+ *              chain, as a switch does, and the boolean `or` runs inside
+ *              its conditions are case lists and cost nothing. Tangle
+ *              measures depth; a flat chain has depth 1 however long it is.
+ *
  * Everything else is identical between the two, so the difference between
- * them is exactly the cost of ordered boolean logic in the function.
+ * them is exactly the cost of order in the function: ordered boolean logic
+ * plus ordered branch chains.
  */
 import type { Node } from 'web-tree-sitter';
 
@@ -61,7 +77,18 @@ export interface BooleanRules {
   identifierName(node: Node): string | null;
   /** Node types the operand scan must not descend into (nested functions, blocks). */
   stopsAt(node: Node): boolean;
+  /**
+   * When the condition is an exclusive test on one value (`x == CONST`,
+   * `x is None`, or an `or` run of such tests on the same x), the text of
+   * that value, so a chain can be recognised as a switch in disguise;
+   * otherwise null. What counts as a constant is the walker's call and is
+   * listed in docs/measures.md.
+   */
+  exclusiveKey(condition: Node): string | null;
 }
+
+/** How a boolean run is charged: both numbers, or Campbell only (case lists in an exclusive chain). */
+export type RunCharge = 'both' | 'campbell';
 
 export class CognitiveCounter {
   private campbell = 0;
@@ -79,10 +106,29 @@ export class CognitiveCounter {
     this.mbcc += 1 + nesting;
   }
 
-  /** elif / else if / else, and anything else that costs one with no nesting charge. */
+  /** Recursion, labelled break / continue, a loop `else`: costs one with no nesting charge. */
   fundamental(): void {
     this.campbell += 1;
     this.mbcc += 1;
+  }
+
+  /**
+   * One if / elif / else chain with `branches` branches (the final `else`
+   * counts as one). Campbell: the `if` is structural, every later branch is
+   * hybrid, so 1 + nesting + (branches - 1). MBCC, ordered branches: the
+   * k-th branch costs k + nesting. MBCC, exclusive chain: 1 + nesting for
+   * the whole chain, the switch rule. A chain of one branch is a plain if
+   * and scores the same under every rule.
+   */
+  branchChain(branches: number, nesting: number, exclusive: boolean): void {
+    this.campbell += 1 + nesting + (branches - 1);
+    if (exclusive || branches === 1) {
+      this.mbcc += 1 + nesting;
+      return;
+    }
+    for (let k = 1; k <= branches; k += 1) {
+      this.mbcc += k + nesting;
+    }
   }
 
   /**
@@ -94,7 +140,7 @@ export class CognitiveCounter {
    * a call argument, or a ternary may hold a sequence of its own, and
    * those are separate sequences by the whitepaper's rule.
    */
-  booleanSequence(node: Node): Node[] {
+  booleanSequence(node: Node, charge: RunCharge = 'both'): Node[] {
     const operands: Node[] = [];
     const operators: string[] = [];
     const flatten = (n: Node): void => {
@@ -117,7 +163,9 @@ export class CognitiveCounter {
       if (i === operators.length || operators[i] !== operators[start]) {
         const runOperands = operands.slice(start, i + 1);
         this.campbell += 1;
-        this.mbcc += this.orderMatters(runOperands) ? runOperands.length : 1;
+        if (charge === 'both') {
+          this.mbcc += this.orderMatters(runOperands) ? runOperands.length : 1;
+        }
         start = i;
       }
     }

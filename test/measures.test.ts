@@ -52,10 +52,42 @@ test('py: one if is +1; a second if nested inside it is +2', () => {
   assert.deepEqual(pyScore('def f(a, b):\n    if a:\n        if b:\n            return 1\n    return 0\n'), [3, 3, 3]);
 });
 
-test('py: elif and else are +1 each with no nesting charge, but their bodies are one level deeper', () => {
-  // if +1, elif +1, else +1; the nested if inside else is +1 + 1 nesting = +2. Total 5.
+test('py: elif and else are +1 each with no nesting charge under Campbell; MBCC charges the k-th branch k', () => {
+  // Campbell: if +1, elif +1, else +1; the nested if inside else is +1 + 1 nesting = +2. Total 5.
+  // MBCC: a, b are different facts, so the chain is ordered: 1 + 2 + 3, then the nested if +2. Total 8.
   const src = 'def f(a, b, c):\n    if a:\n        return 1\n    elif b:\n        return 2\n    else:\n        if c:\n            return 3\n    return 0\n';
-  assert.deepEqual(pyScore(src), [4, 5, 5]);
+  assert.deepEqual(pyScore(src), [4, 5, 8]);
+});
+
+test('py: ordered branches (the paper, section 5): four branches on different facts cost 1 + 2 + 3 + 4', () => {
+  const src = 'def f(total, customer):\n    if total < 0:\n        return 1\n    elif customer.is_new:\n        return 2\n    elif discount_applies():\n        return 3\n    else:\n        return 4\n';
+  assert.deepEqual(pyScore(src), [4, 4, 10]);
+  // The same chain one level deep: Campbell charges nesting on the if only (+1); MBCC on every branch (+4).
+  const nested = 'def f(go, total, customer):\n    if go:\n        if total < 0:\n            return 1\n        elif customer.is_new:\n            return 2\n        elif discount_applies():\n            return 3\n        else:\n            return 4\n    return 0\n';
+  assert.deepEqual(pyScore(nested), [5, 6, 15]);
+});
+
+test('py: an exclusive chain on one value against constants is a match in disguise and costs one', () => {
+  const src = 'def f(kind):\n    if kind == "a":\n        return 1\n    elif kind == "b":\n        return 2\n    elif kind == "c":\n        return 3\n    else:\n        return 4\n';
+  assert.deepEqual(pyScore(src), [4, 4, 1]);
+  // Constant on the left, `is None`, an attribute path as the value, enum members, and `in` a literal tuple all qualify.
+  const forms = 'def f(self):\n    if "a" == self.kind:\n        return 1\n    elif self.kind is None:\n        return 2\n    elif self.kind == Kind.B:\n        return 3\n    elif self.kind in ("c", "d"):\n        return 4\n    return 0\n';
+  assert.deepEqual(pyScore(forms), [5, 4, 1]);
+  // An `or` run of tests on the same value is a case list: Campbell charges the run, MBCC does not.
+  const cases = 'def f(kind):\n    if kind == "a" or kind == "b":\n        return 1\n    elif kind == "c":\n        return 2\n    return 0\n';
+  assert.deepEqual(pyScore(cases), [4, 3, 1]);
+  // A 28-case chain is still one: tangle measures depth, not breadth.
+  const many = Array.from({ length: 28 }, (_, i) => `${i === 0 ? 'if' : 'elif'} kind == ${i}:\n        return ${i}`).join('\n    ');
+  assert.deepEqual(pyScore(`def f(kind):\n    ${many}\n    return -1\n`), [29, 28, 1]);
+});
+
+test('py: a chain stops being exclusive the moment one branch tests a different fact', () => {
+  // kind == "a" / kind == "b" / else ok: exclusive. Add `elif total < 0` and the reader must hold the failures again.
+  const src = 'def f(kind, total):\n    if kind == "a":\n        return 1\n    elif total < 0:\n        return 2\n    elif kind == "b":\n        return 3\n    return 0\n';
+  assert.deepEqual(pyScore(src), [4, 3, 6]);
+  // A call on the tested side is not a constant test.
+  const call = 'def f(kind):\n    if kind == "a":\n        return 1\n    elif kind == pick():\n        return 2\n    return 0\n';
+  assert.deepEqual(pyScore(call), [3, 2, 3]);
 });
 
 test('py: a flat match with many cases costs 1; cyclomatic charges every case', () => {
@@ -156,10 +188,30 @@ test('ts: a straight-line function scores 0', () => {
   assert.deepEqual(tsScore('function f(a: number) {\n  const b = a + 1;\n  return b;\n}\n'), [1, 0, 0]);
 });
 
-test('ts: else if and else are hybrid; nesting starts inside them', () => {
-  // if +1, else if +1, else +1, nested if inside else +2. Total 5.
+test('ts: else if and else are hybrid under Campbell; MBCC charges the k-th branch k', () => {
+  // Campbell: if +1, else if +1, else +1, nested if inside else +2. Total 5. MBCC: 1 + 2 + 3, then +2. Total 8.
   const src = 'function f(a, b, c) {\n  if (a) { return 1; }\n  else if (b) { return 2; }\n  else { if (c) { return 3; } }\n  return 0;\n}\n';
-  assert.deepEqual(tsScore(src), [4, 5, 5]);
+  assert.deepEqual(tsScore(src), [4, 5, 8]);
+});
+
+test('ts: ordered branches (the paper, section 5): four branches on different facts cost 1 + 2 + 3 + 4', () => {
+  const src = 'function f(total, customer) {\n  if (total < 0) { return 1; }\n  else if (customer.isNew) { return 2; }\n  else if (discountApplies()) { return 3; }\n  else { return 4; }\n}\n';
+  assert.deepEqual(tsScore(src), [4, 4, 10]);
+  const nested = 'function f(go, total, customer) {\n  if (go) {\n    if (total < 0) { return 1; }\n    else if (customer.isNew) { return 2; }\n    else if (discountApplies()) { return 3; }\n    else { return 4; }\n  }\n  return 0;\n}\n';
+  assert.deepEqual(tsScore(nested), [5, 6, 15]);
+});
+
+test('ts: an exclusive chain on one value against constants is a switch in disguise and costs one', () => {
+  const src = 'function f(kind) {\n  if (kind === "a") { return 1; }\n  else if (kind === "b") { return 2; }\n  else if (kind === "c") { return 3; }\n  else { return 4; }\n}\n';
+  assert.deepEqual(tsScore(src), [4, 4, 1]);
+  // this.kind as the value, enum members, ==, null, and an || case list.
+  const forms = 'class A { f() {\n  if (this.kind === Kind.A || this.kind === Kind.B) { return 1; }\n  else if (this.kind == null) { return 2; }\n  else if (MAX === this.kind) { return 3; }\n  return 0;\n} }\n';
+  assert.deepEqual(tsScore(forms), [5, 4, 1]);
+});
+
+test('ts: a chain stops being exclusive the moment one branch tests a different fact', () => {
+  const src = 'function f(kind, total) {\n  if (kind === "a") { return 1; }\n  else if (total < 0) { return 2; }\n  else if (kind === "b") { return 3; }\n  return 0;\n}\n';
+  assert.deepEqual(tsScore(src), [4, 3, 6]);
 });
 
 test('ts: a flat switch costs 1 whatever the number of cases', () => {

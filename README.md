@@ -2,7 +2,7 @@
 
 Three complexity measures per function, from a tree-sitter syntax tree you
 have already parsed: cyclomatic (McCabe), Cognitive Complexity (Campbell),
-and MikeVan's Better Cognitive Complexity (MBCC). DeepTest and RefactorIt
+and MikeVan's Better Cognitive Complexity (MBCC). DeepTest and UntangleIt
 both measure with this package, so the two never disagree about the same
 function. Python and TypeScript / JavaScript today.
 
