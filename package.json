@@ -1,6 +1,6 @@
 {
   "name": "@projectrevivesolutions/complexity",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Three complexity measures per function over a tree-sitter syntax tree: cyclomatic (McCabe), Cognitive Complexity (Campbell), and MikeVan's Better Cognitive Complexity (MBCC). The one scorer every tool in MikeVan's AI Development Toolkit measures with.",
   "license": "GPL-3.0-only",
   "repository": {

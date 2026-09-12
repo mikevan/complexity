@@ -1,0 +1,152 @@
+{
+  ".gitignore": {
+    "blob_id": "790e3169bc19b046fe55ba1da6d13b976c28363c8c00462a2195fe5faf260910",
+    "content_hash": "790e3169bc19b046fe55ba1da6d13b976c28363c8c00462a2195fe5faf260910",
+    "size": 20,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  ".vscode/settings.json": {
+    "blob_id": "93047885bac4f751f6bdebe8e64531b6e52472562832437bd87aaa03dcb29720",
+    "content_hash": "93047885bac4f751f6bdebe8e64531b6e52472562832437bd87aaa03dcb29720",
+    "size": 1208,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "CHANGELOG.md": {
+    "blob_id": "cf0f1ed9450862694d379fc81a6dbc539a830f5b7e956e2bbcc55c9736091105",
+    "content_hash": "cf0f1ed9450862694d379fc81a6dbc539a830f5b7e956e2bbcc55c9736091105",
+    "size": 304,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "docs/mbcc-why-and-how.md": {
+    "blob_id": "a70a107efdc80350e0d7cc7f429414862c47368df0d25609015a99be6ef7178a",
+    "content_hash": "a70a107efdc80350e0d7cc7f429414862c47368df0d25609015a99be6ef7178a",
+    "size": 13687,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "docs/measures.md": {
+    "blob_id": "b9350a419a036490603c5b90ffc2c8bb5b4c0a6564bfb4b3e228e93628e7800c",
+    "content_hash": "b9350a419a036490603c5b90ffc2c8bb5b4c0a6564bfb4b3e228e93628e7800c",
+    "size": 9356,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "docs/toolkit-roadmap.md": {
+    "blob_id": "43eec91a94b8257637297d92257e3866e4773ad7856757965cd419d0ad06d2b9",
+    "content_hash": "43eec91a94b8257637297d92257e3866e4773ad7856757965cd419d0ad06d2b9",
+    "size": 10153,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "LICENSE": {
+    "blob_id": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0",
+    "content_hash": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0",
+    "size": 34674,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "package-lock.json": {
+    "blob_id": "5aec3872710b50c15d4c7b4b214b9a20e2bf40c801d2e17bd5e84ff0bf34c6ab",
+    "content_hash": "5aec3872710b50c15d4c7b4b214b9a20e2bf40c801d2e17bd5e84ff0bf34c6ab",
+    "size": 53293,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "package.json": {
+    "blob_id": "70df71fb839e4796907700fcd20a1e86b59f8103935658835b72b03ba931ca2a",
+    "content_hash": "70df71fb839e4796907700fcd20a1e86b59f8103935658835b72b03ba931ca2a",
+    "size": 1020,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "README.md": {
+    "blob_id": "164789a5f61be6952c19ca02db319f3175f5beed325bf720c32543c5bfacc1fa",
+    "content_hash": "164789a5f61be6952c19ca02db319f3175f5beed325bf720c32543c5bfacc1fa",
+    "size": 1245,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "src/counter.ts": {
+    "blob_id": "6966e3a19309296cc81084e4c6663b7b72a8a58466b5db1f583077b5b6fa3771",
+    "content_hash": "6966e3a19309296cc81084e4c6663b7b72a8a58466b5db1f583077b5b6fa3771",
+    "size": 9724,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "src/find.ts": {
+    "blob_id": "d4de355c64cbd61daabfac01348cef2df862dfe53e158fa23ffc9b0748e65165",
+    "content_hash": "d4de355c64cbd61daabfac01348cef2df862dfe53e158fa23ffc9b0748e65165",
+    "size": 2205,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "src/index.ts": {
+    "blob_id": "71148f4ca80901ad4b0330d798a11dc28db1a3ccd100625d898e9459b93ee329",
+    "content_hash": "71148f4ca80901ad4b0330d798a11dc28db1a3ccd100625d898e9459b93ee329",
+    "size": 1209,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "src/python.ts": {
+    "blob_id": "aabdfff8c89507bed4b544268d2d098ce42293c034614d8f6ce3a6549c2b6912",
+    "content_hash": "aabdfff8c89507bed4b544268d2d098ce42293c034614d8f6ce3a6549c2b6912",
+    "size": 13789,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "src/sfc.ts": {
+    "blob_id": "64210aa2a061e17c900eedabf6df1000d77dd8d281a2c2d2db3c5e3687b8ab3b",
+    "content_hash": "64210aa2a061e17c900eedabf6df1000d77dd8d281a2c2d2db3c5e3687b8ab3b",
+    "size": 4792,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "src/types.ts": {
+    "blob_id": "18640d13e4477ba86d3fcea3716e4614bf5d50bd1c0f4fa2455c976452f079ab",
+    "content_hash": "18640d13e4477ba86d3fcea3716e4614bf5d50bd1c0f4fa2455c976452f079ab",
+    "size": 1539,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "src/typescript.ts": {
+    "blob_id": "f27a03e2318972307f70fb6bdbd9d7a4826b2a89f636d8b0083477883fde51f3",
+    "content_hash": "f27a03e2318972307f70fb6bdbd9d7a4826b2a89f636d8b0083477883fde51f3",
+    "size": 13132,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "test/measures.test.ts": {
+    "blob_id": "aa12a4a90864b55b4643367acc1ca5e653a91322007cb6b8978df7384bb430ea",
+    "content_hash": "aa12a4a90864b55b4643367acc1ca5e653a91322007cb6b8978df7384bb430ea",
+    "size": 16394,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "test/sfc.test.ts": {
+    "blob_id": "c46cd2467e34f1bac42a2ee4a75c516b92181f5b9fa72ecdf1dc5582d2bcac7a",
+    "content_hash": "c46cd2467e34f1bac42a2ee4a75c516b92181f5b9fa72ecdf1dc5582d2bcac7a",
+    "size": 4887,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "test/treeSitter.ts": {
+    "blob_id": "706c6a934e9d806def7e42a3bae7ae009f4e882bd23aa5d7ae43dd034e99a899",
+    "content_hash": "706c6a934e9d806def7e42a3bae7ae009f4e882bd23aa5d7ae43dd034e99a899",
+    "size": 811,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "tsconfig.json": {
+    "blob_id": "1aabf25c5987ef109a1714dcf6b13389df401260ac78738ebd26c00d436f2db3",
+    "content_hash": "1aabf25c5987ef109a1714dcf6b13389df401260ac78738ebd26c00d436f2db3",
+    "size": 478,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "vendor/tree-sitter-javascript.LICENSE": {
+    "blob_id": "2e0110e07abef7c2548b26ec9d6969775617ca539a0dc8dbeeb14d6452c711d1",
+    "content_hash": "2e0110e07abef7c2548b26ec9d6969775617ca539a0dc8dbeeb14d6452c711d1",
+    "size": 1080,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "vendor/tree-sitter-python.LICENSE": {
+    "blob_id": "d724405ce238a22c0d35769c5a36b386ad5958192efe8bbb304fb2896254575f",
+    "content_hash": "d724405ce238a22c0d35769c5a36b386ad5958192efe8bbb304fb2896254575f",
+    "size": 1080,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "vendor/tree-sitter-typescript.LICENSE": {
+    "blob_id": "49bf33cf78ef5897e4e161ce1517df7de1ae5042a65b6bcfd44401e0fc606559",
+    "content_hash": "49bf33cf78ef5897e4e161ce1517df7de1ae5042a65b6bcfd44401e0fc606559",
+    "size": 1080,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  },
+  "vitest.config.ts": {
+    "blob_id": "530bd3ae03a17ef1b60d63ca7bbceaa4231acf82ae4876151083c0e9c402e519",
+    "content_hash": "530bd3ae03a17ef1b60d63ca7bbceaa4231acf82ae4876151083c0e9c402e519",
+    "size": 132,
+    "checkpoint_id": "0001-quick-20260911-192646"
+  }
+}
