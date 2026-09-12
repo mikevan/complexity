@@ -1,2 +1,4 @@
 node_modules/
 dist/
+# KeepSafe's local checkpoint store; it belongs to the machine, not the repository.
+.keepsafe/

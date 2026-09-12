@@ -17,7 +17,7 @@ const measures = measurePython(functions);             // same order as the inpu
 // measures[i] = { cyclomatic: 25, campbell: 50, mbcc: 51 }
 ```
 
-`docs/measures.md` has every rule and every reading that had to be chosen.
+`docs/measures.md` has every rule and every reading that had to be chosen. It is a mirror of the toolkit's library in `MADTPackage\library`, where it is written and catalogued; edit it there.
 
 ## Build and test
 

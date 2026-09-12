@@ -1,5 +1,7 @@
 # The three measures
 
+Michael Van Geertruy, with Claude. Project Revive Solutions, LLC.
+
 Version 0.1.1 (2026-09-12): the ordered-branches rule joined the ordered-operands rule in MBCC; 0.1.0 had ordered operands only.
 
 Every tool in MikeVan's AI Development Toolkit that reports on a function reports these
