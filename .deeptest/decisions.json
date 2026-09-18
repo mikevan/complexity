@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "decisions": [
+    {
+      "path": "src/typescript.ts",
+      "line": 169,
+      "lineHash": "11caac52d4df1ba1",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T17:49:29.194Z",
+      "gapAtDecision": 10
+    },
+    {
+      "path": "src/python.ts",
+      "line": 205,
+      "lineHash": "b8c9af495dc76f73",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:28:55.498Z",
+      "gapAtDecision": 9
+    },
+    {
+      "path": "src/typescript.ts",
+      "line": 67,
+      "lineHash": "c4548216c7098622",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:30:52.111Z",
+      "gapAtDecision": 7
+    },
+    {
+      "path": "src/python.ts",
+      "line": 201,
+      "lineHash": "b8c9af495dc76f73",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:33:08.538Z",
+      "gapAtDecision": 6
+    },
+    {
+      "path": "src/typescript.ts",
+      "line": 189,
+      "lineHash": "18f51537d526c30b",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:35:10.167Z",
+      "gapAtDecision": 6
+    },
+    {
+      "path": "src/typescript.ts",
+      "line": 192,
+      "lineHash": "2cc4eb90ff6ae7b7",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:36:48.796Z",
+      "gapAtDecision": 5
+    },
+    {
+      "path": "src/typescript.ts",
+      "line": 193,
+      "lineHash": "76377f47c2f10f80",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:38:46.945Z",
+      "gapAtDecision": 5
+    },
+    {
+      "path": "src/python.ts",
+      "line": 297,
+      "lineHash": "a34eb40ebb1882c1",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:40:38.369Z",
+      "gapAtDecision": 5
+    },
+    {
+      "path": "src/typescript.ts",
+      "line": 182,
+      "lineHash": "2cc4eb90ff6ae7b7",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:43:33.310Z",
+      "gapAtDecision": 4
+    },
+    {
+      "path": "src/python.ts",
+      "line": 85,
+      "lineHash": "b11a2966eec54032",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:45:30.688Z",
+      "gapAtDecision": 4
+    },
+    {
+      "path": "src/python.ts",
+      "line": 65,
+      "lineHash": "40b280bb3d0285f7",
+      "kind": "fix",
+      "reason": "",
+      "by": "vange",
+      "at": "2026-09-18T18:47:11.875Z",
+      "gapAtDecision": 3
+    }
+  ]
+}

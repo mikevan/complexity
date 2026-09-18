@@ -2,3 +2,9 @@ node_modules/
 dist/
 # KeepSafe's local checkpoint store; it belongs to the machine, not the repository.
 .keepsafe/
+# UntangleIt's working files; the run record travels with the code.
+.untangleit/*
+!.untangleit/runs.json
+# DeepTest's working files; the decisions travel with the code.
+.deeptest/*
+!.deeptest/decisions.json

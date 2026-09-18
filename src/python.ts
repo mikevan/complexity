@@ -98,22 +98,41 @@ function isDiscriminator(node: Node): boolean {
 /** See the header: the discriminated value's text for an exclusive test, else null. */
 function exclusiveKey(node: Node): string | null {
   if (node.type === 'parenthesized_expression') {
-    const inner = node.namedChildren[0];
-    return inner ? exclusiveKey(inner) : null;
+    return parenthesizedExclusiveKey(node);
   }
   if (node.type === 'boolean_operator') {
-    if (node.childForFieldName('operator')?.text !== 'or') {
-      return null;
-    }
-    const left = node.childForFieldName('left');
-    const right = node.childForFieldName('right');
-    const l = left ? exclusiveKey(left) : null;
-    const r = right ? exclusiveKey(right) : null;
-    return l !== null && l === r ? l : null;
+    return booleanExclusiveKey(node);
   }
   if (node.type !== 'comparison_operator') {
     return null;
   }
+  return comparisonExclusiveKey(node);
+}
+
+function parenthesizedExclusiveKey(node: Node): string | null {
+  const inner = node.namedChildren[0];
+  return inner ? exclusiveKey(inner) : null;
+}
+
+function booleanExclusiveKey(node: Node): string | null {
+  if (node.childForFieldName('operator')?.text !== 'or') {
+    return null;
+  }
+  const left = node.childForFieldName('left');
+  const right = node.childForFieldName('right');
+  const leftKey = left ? exclusiveKey(left) : null;
+  const rightKey = right ? exclusiveKey(right) : null;
+  return matchingExclusiveKey(leftKey, rightKey);
+}
+
+function matchingExclusiveKey(left: string | null, right: string | null): string | null {
+  if (left === null) {
+    return null;
+  }
+  return left === right ? left : null;
+}
+
+function comparisonExclusiveKey(node: Node): string | null {
   const operands = node.namedChildren.filter((c): c is Node => c !== null);
   const operators = node.childrenForFieldName('operators').map((o) => o?.text ?? '');
   if (operands.length !== 2 || operators.length !== 1) {
@@ -122,18 +141,30 @@ function exclusiveKey(node: Node): string | null {
   const [a, b] = operands;
   const op = operators[0];
   if (op === '==' || op === 'is') {
-    if (isDiscriminator(a) && isConstant(b)) {
-      return a.text;
-    }
-    if (isConstant(a) && isDiscriminator(b)) {
-      return b.text;
-    }
-    return null;
+    return equalityExclusiveKey(a, b);
   }
-  if (op === 'in' && isDiscriminator(a) && isConstant(b)) {
+  if (isMembershipComparison(op, a, b)) {
     return a.text;
   }
   return null;
+}
+
+function equalityExclusiveKey(left: Node, right: Node): string | null {
+  if (isDiscriminatorConstantPair(left, right)) {
+    return left.text;
+  }
+  if (isDiscriminatorConstantPair(right, left)) {
+    return right.text;
+  }
+  return null;
+}
+
+function isDiscriminatorConstantPair(discriminator: Node, constant: Node): boolean {
+  return isDiscriminator(discriminator) && isConstant(constant);
+}
+
+function isMembershipComparison(operator: string, left: Node, right: Node): boolean {
+  return operator === 'in' && isDiscriminator(left) && isConstant(right);
 }
 
 class Walker {
@@ -280,32 +311,77 @@ class Walker {
   }
 }
 
+function calledName(node: Node): string | null {
+  if (node.type !== 'call') {
+    return null;
+  }
+  const fn = node.childForFieldName('function');
+  if (fn?.type === 'identifier') {
+    return fn.text;
+  }
+  if (fn?.type !== 'attribute') {
+    return null;
+  }
+  const object = fn.childForFieldName('object')?.text;
+  const attribute = fn.childForFieldName('attribute')?.text;
+  return pythonMethodName(object, attribute);
+}
+
+function pythonMethodName(object: string | undefined, attribute: string | undefined): string | null {
+  return (object === 'self' || object === 'cls') && attribute ? attribute : null;
+}
+
+function visitCalledNames(node: Node, names: Set<string>): void {
+  const name = calledName(node);
+  if (name) {
+    names.add(name);
+  }
+  for (const child of node.namedChildren) {
+    if (child) {
+      visitCalledNames(child, names);
+    }
+  }
+}
+
 /** Names this function body calls as `name(...)`, `self.name(...)`, or `cls.name(...)`. */
 function calledNames(body: Node | null): Set<string> {
   const names = new Set<string>();
-  const visit = (n: Node): void => {
-    if (n.type === 'call') {
-      const fn = n.childForFieldName('function');
-      if (fn?.type === 'identifier') {
-        names.add(fn.text);
-      } else if (fn?.type === 'attribute') {
-        const object = fn.childForFieldName('object')?.text;
-        const attribute = fn.childForFieldName('attribute')?.text;
-        if ((object === 'self' || object === 'cls') && attribute) {
-          names.add(attribute);
-        }
-      }
-    }
-    for (const child of n.namedChildren) {
-      if (child) {
-        visit(child);
-      }
-    }
-  };
   if (body) {
-    visit(body);
+    visitCalledNames(body, names);
   }
   return names;
+}
+
+function visitCyclomatic(node: Node, increment: () => void): void {
+  if (node.type === 'function_definition' || node.type === 'class_definition') {
+    return;
+  }
+  switch (node.type) {
+    case 'if_statement':
+    case 'elif_clause':
+    case 'for_statement':
+    case 'while_statement':
+    case 'except_clause':
+    case 'except_group_clause':
+    case 'case_clause':
+    case 'boolean_operator':
+    case 'conditional_expression':
+    case 'for_in_clause':
+    case 'if_clause':
+      increment();
+      break;
+    default:
+      break;
+  }
+  visitCyclomaticChildren(node, increment);
+}
+
+function visitCyclomaticChildren(node: Node, increment: () => void): void {
+  for (const child of node.namedChildren) {
+    if (child) {
+      visitCyclomatic(child, increment);
+    }
+  }
 }
 
 /**
@@ -319,34 +395,9 @@ export function cyclomaticOf(body: Node | null): number {
     return 1;
   }
   let count = 0;
-  const visit = (n: Node): void => {
-    if (n.type === 'function_definition' || n.type === 'class_definition') {
-      return;
-    }
-    switch (n.type) {
-      case 'if_statement':
-      case 'elif_clause':
-      case 'for_statement':
-      case 'while_statement':
-      case 'except_clause':
-      case 'except_group_clause':
-      case 'case_clause':
-      case 'boolean_operator':
-      case 'conditional_expression':
-      case 'for_in_clause':
-      case 'if_clause':
-        count += 1;
-        break;
-      default:
-        break;
-    }
-    for (const child of n.namedChildren) {
-      if (child) {
-        visit(child);
-      }
-    }
-  };
-  visit(body);
+  visitCyclomatic(body, () => {
+    count += 1;
+  });
   return 1 + count;
 }
 

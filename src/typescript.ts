@@ -97,12 +97,20 @@ function isDiscriminator(node: Node): boolean {
 /** See the header: the discriminated value's text for an exclusive test, else null. */
 function exclusiveKey(node: Node): string | null {
   if (node.type === 'parenthesized_expression') {
-    const inner = node.namedChildren[0];
-    return inner ? exclusiveKey(inner) : null;
+    return parenthesizedExclusiveKey(node);
   }
   if (node.type !== 'binary_expression') {
     return null;
   }
+  return binaryExclusiveKey(node);
+}
+
+function parenthesizedExclusiveKey(node: Node): string | null {
+  const inner = node.namedChildren[0];
+  return inner ? exclusiveKey(inner) : null;
+}
+
+function binaryExclusiveKey(node: Node): string | null {
   const operator = node.childForFieldName('operator')?.text ?? '';
   const left = node.childForFieldName('left');
   const right = node.childForFieldName('right');
@@ -110,20 +118,43 @@ function exclusiveKey(node: Node): string | null {
     return null;
   }
   if (operator === '||') {
-    const l = exclusiveKey(left);
-    const r = exclusiveKey(right);
-    return l !== null && l === r ? l : null;
+    return disjunctionExclusiveKey(left, right);
   }
-  if (operator !== '===' && operator !== '==') {
+  if (!isEqualityOperator(operator)) {
     return null;
   }
-  if (isDiscriminator(left) && isConstant(right)) {
+  return equalityExclusiveKey(left, right);
+}
+
+function disjunctionExclusiveKey(left: Node, right: Node): string | null {
+  const leftKey = exclusiveKey(left);
+  const rightKey = exclusiveKey(right);
+  return matchingExclusiveKey(leftKey, rightKey);
+}
+
+function matchingExclusiveKey(left: string | null, right: string | null): string | null {
+  if (left === null) {
+    return null;
+  }
+  return left === right ? left : null;
+}
+
+function isEqualityOperator(operator: string): boolean {
+  return operator === '===' || operator === '==';
+}
+
+function equalityExclusiveKey(left: Node, right: Node): string | null {
+  if (isDiscriminatorConstantPair(left, right)) {
     return left.text;
   }
-  if (isConstant(left) && isDiscriminator(right)) {
+  if (isDiscriminatorConstantPair(right, left)) {
     return right.text;
   }
   return null;
+}
+
+function isDiscriminatorConstantPair(discriminator: Node, constant: Node): boolean {
+  return isDiscriminator(discriminator) && isConstant(constant);
 }
 
 class Walker {
@@ -133,7 +164,7 @@ class Walker {
     if (!node) {
       return;
     }
-    if (FUNCTION_TYPES.has(node.type) || CLASS_TYPES.has(node.type)) {
+    if (this.isNestedScope(node)) {
       this.visit(node.childForFieldName('body'), nesting + 1);
       return;
     }
@@ -145,20 +176,12 @@ class Walker {
       case 'for_in_statement':
       case 'while_statement':
       case 'do_statement':
-        this.counter.structural(nesting);
-        for (const field of ['initializer', 'condition', 'increment', 'left', 'right']) {
-          this.visit(node.childForFieldName(field), nesting);
-        }
-        this.visit(node.childForFieldName('body'), nesting + 1);
+        this.visitLoop(node, nesting);
         return;
       case 'switch_statement':
         this.counter.structural(nesting);
         this.visit(node.childForFieldName('value'), nesting);
-        for (const clause of node.childForFieldName('body')?.namedChildren ?? []) {
-          if (clause) {
-            this.children(clause, nesting + 1);
-          }
-        }
+        this.visitSwitchClauses(node, nesting);
         return;
       case 'try_statement':
         this.visit(node.childForFieldName('body'), nesting);
@@ -170,22 +193,50 @@ class Walker {
         this.children(node, nesting + 1);
         return;
       case 'binary_expression':
-        if (rules.booleanParts(node)) {
-          for (const operand of this.counter.booleanSequence(node)) {
-            this.visit(operand, nesting);
-          }
-          return;
-        }
-        this.children(node, nesting);
+        this.visitBinaryExpression(node, nesting);
         return;
       case 'break_statement':
       case 'continue_statement':
-        if (node.childForFieldName('label')) {
-          this.counter.fundamental();
-        }
+        this.visitLabeledJump(node);
         return;
       default:
         this.children(node, nesting);
+    }
+  }
+
+  private isNestedScope(node: Node): boolean {
+    return FUNCTION_TYPES.has(node.type) || CLASS_TYPES.has(node.type);
+  }
+
+  private visitLoop(node: Node, nesting: number): void {
+    this.counter.structural(nesting);
+    for (const field of ['initializer', 'condition', 'increment', 'left', 'right']) {
+      this.visit(node.childForFieldName(field), nesting);
+    }
+    this.visit(node.childForFieldName('body'), nesting + 1);
+  }
+
+  private visitSwitchClauses(node: Node, nesting: number): void {
+    for (const clause of node.childForFieldName('body')?.namedChildren ?? []) {
+      if (clause) {
+        this.children(clause, nesting + 1);
+      }
+    }
+  }
+
+  private visitBinaryExpression(node: Node, nesting: number): void {
+    if (!rules.booleanParts(node)) {
+      this.children(node, nesting);
+      return;
+    }
+    for (const operand of this.counter.booleanSequence(node)) {
+      this.visit(operand, nesting);
+    }
+  }
+
+  private visitLabeledJump(node: Node): void {
+    if (node.childForFieldName('label')) {
+      this.counter.fundamental();
     }
   }
 
@@ -264,34 +315,87 @@ class Walker {
   }
 }
 
+function calledName(node: Node): string | null {
+  if (node.type !== 'call_expression') {
+    return null;
+  }
+  const fn = node.childForFieldName('function');
+  if (fn?.type === 'identifier') {
+    return fn.text;
+  }
+  if (fn?.type !== 'member_expression') {
+    return null;
+  }
+  if (fn.childForFieldName('object')?.type !== 'this') {
+    return null;
+  }
+  return fn.childForFieldName('property')?.text ?? null;
+}
+
+function visitCalledNames(node: Node, names: Set<string>): void {
+  const name = calledName(node);
+  if (name) {
+    names.add(name);
+  }
+  for (const child of node.namedChildren) {
+    if (child) {
+      visitCalledNames(child, names);
+    }
+  }
+}
+
 /** Names this function body calls as `name(...)` or `this.name(...)`. */
 function calledNames(body: Node | null): Set<string> {
   const names = new Set<string>();
-  const visit = (n: Node): void => {
-    if (n.type === 'call_expression') {
-      const fn = n.childForFieldName('function');
-      if (fn?.type === 'identifier') {
-        names.add(fn.text);
-      } else if (fn?.type === 'member_expression' && fn.childForFieldName('object')?.type === 'this') {
-        const property = fn.childForFieldName('property')?.text;
-        if (property) {
-          names.add(property);
-        }
-      }
-    }
-    for (const child of n.namedChildren) {
-      if (child) {
-        visit(child);
-      }
-    }
-  };
   if (body) {
-    visit(body);
+    visitCalledNames(body, names);
   }
   return names;
 }
 
 const SHORT_CIRCUIT = new Set(['&&', '||', '??']);
+
+function isNestedType(node: Node): boolean {
+  return FUNCTION_TYPES.has(node.type) || CLASS_TYPES.has(node.type);
+}
+
+function visitCyclomatic(node: Node, increment: () => void): void {
+  if (isNestedType(node)) {
+    return;
+  }
+  switch (node.type) {
+    case 'if_statement':
+    case 'for_statement':
+    case 'for_in_statement':
+    case 'while_statement':
+    case 'do_statement':
+    case 'catch_clause':
+    case 'switch_case':
+    case 'ternary_expression':
+      increment();
+      break;
+    case 'binary_expression':
+      incrementShortCircuit(node, increment);
+      break;
+    default:
+      break;
+  }
+  visitCyclomaticChildren(node, increment);
+}
+
+function incrementShortCircuit(node: Node, increment: () => void): void {
+  if (SHORT_CIRCUIT.has(node.childForFieldName('operator')?.text ?? '')) {
+    increment();
+  }
+}
+
+function visitCyclomaticChildren(node: Node, increment: () => void): void {
+  for (const child of node.namedChildren) {
+    if (child) {
+      visitCyclomatic(child, increment);
+    }
+  }
+}
 
 /**
  * McCabe cyclomatic complexity: 1 + every fork inside the function body,
@@ -303,36 +407,9 @@ export function cyclomaticOf(body: Node | null): number {
     return 1;
   }
   let count = 0;
-  const visit = (n: Node): void => {
-    if (FUNCTION_TYPES.has(n.type) || CLASS_TYPES.has(n.type)) {
-      return;
-    }
-    switch (n.type) {
-      case 'if_statement':
-      case 'for_statement':
-      case 'for_in_statement':
-      case 'while_statement':
-      case 'do_statement':
-      case 'catch_clause':
-      case 'switch_case':
-      case 'ternary_expression':
-        count += 1;
-        break;
-      case 'binary_expression':
-        if (SHORT_CIRCUIT.has(n.childForFieldName('operator')?.text ?? '')) {
-          count += 1;
-        }
-        break;
-      default:
-        break;
-    }
-    for (const child of n.namedChildren) {
-      if (child) {
-        visit(child);
-      }
-    }
-  };
-  visit(body);
+  visitCyclomatic(body, () => {
+    count += 1;
+  });
   return 1 + count;
 }
 

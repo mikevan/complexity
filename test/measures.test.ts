@@ -81,6 +81,26 @@ test('py: an exclusive chain on one value against constants is a match in disgui
   assert.deepEqual(pyScore(`def f(kind):\n    ${many}\n    return -1\n`), [29, 28, 1]);
 });
 
+test('py: a literal list is a constant membership collection', () => {
+  const src = 'def f(kind):\n    if kind in ["a", "b"]:\n        return 1\n    elif kind == "c":\n        return 2\n    return 0\n';
+  assert.deepEqual(pyScore(src), [3, 2, 1]);
+});
+
+test('py: a literal set is a constant membership collection', () => {
+  const src = 'def f(kind):\n    if kind in {"a", "b"}:\n        return 1\n    elif kind == "c":\n        return 2\n    return 0\n';
+  assert.deepEqual(pyScore(src), [3, 2, 1]);
+});
+
+test('py: a parenthesized literal remains a constant', () => {
+  const src = 'def f(kind):\n    if kind == ("a"):\n        return 1\n    elif kind == "b":\n        return 2\n    return 0\n';
+  assert.deepEqual(pyScore(src), [3, 2, 1]);
+});
+
+test('py: a tuple with a nonconstant child is not a constant collection', () => {
+  const src = 'def f(kind, other):\n    if kind in ("a", other):\n        return 1\n    elif kind == "b":\n        return 2\n    return 0\n';
+  assert.deepEqual(pyScore(src), [3, 2, 3]);
+});
+
 test('py: a chain stops being exclusive the moment one branch tests a different fact', () => {
   // kind == "a" / kind == "b" / else ok: exclusive. Add `elif total < 0` and the reader must hold the failures again.
   const src = 'def f(kind, total):\n    if kind == "a":\n        return 1\n    elif total < 0:\n        return 2\n    elif kind == "b":\n        return 3\n    return 0\n';
@@ -105,6 +125,31 @@ test('py: loops are structural, and a loop else is hybrid', () => {
 test('py: try costs nothing, except is structural, finally and else cost nothing', () => {
   // except +1, the if inside it +2. Total 3.
   const src = 'def f():\n    try:\n        g()\n    except ValueError as e:\n        if e:\n            raise\n    else:\n        h()\n    finally:\n        k()\n';
+  assert.deepEqual(pyScore(src), [3, 3, 3]);
+});
+
+test('py: an if in a try else block is visited at the try nesting', () => {
+  const src = 'def f(done):\n    try:\n        work()\n    except ValueError:\n        recover()\n    else:\n        if done:\n            finish()\n';
+  assert.deepEqual(pyScore(src), [3, 2, 2]);
+});
+
+test('py: a boolean run in a try else block is visited', () => {
+  const src = 'def f(left, right):\n    try:\n        work()\n    except ValueError:\n        recover()\n    else:\n        result = left and right\n';
+  assert.deepEqual(pyScore(src), [3, 2, 2]);
+});
+
+test('py: a loop in a finally block is visited at the try nesting', () => {
+  const src = 'def f(items):\n    try:\n        work()\n    finally:\n        for item in items:\n            clean(item)\n';
+  assert.deepEqual(pyScore(src), [2, 1, 1]);
+});
+
+test('py: a ternary in a finally block is visited at the try nesting', () => {
+  const src = 'def f(done):\n    try:\n        work()\n    finally:\n        result = 1 if done else 0\n';
+  assert.deepEqual(pyScore(src), [2, 1, 1]);
+});
+
+test('py: finally preserves an enclosing decision nesting level', () => {
+  const src = 'def f(run, done):\n    if run:\n        try:\n            work()\n        finally:\n            if done:\n                finish()\n';
   assert.deepEqual(pyScore(src), [3, 3, 3]);
 });
 
@@ -148,6 +193,21 @@ test('py: MBCC applies per run, not per expression', () => {
   assert.deepEqual(pyScore(src), [3, 2, 3]);
 });
 
+test('py: MBCC resolves a subscript to its earlier collection root', () => {
+  const src = 'def f(items):\n    return items and items[0]\n';
+  assert.deepEqual(pyScore(src), [2, 1, 2]);
+});
+
+test('py: MBCC resolves an attribute after a subscript to its earlier root', () => {
+  const src = 'def f(items):\n    return items and items[0].value\n';
+  assert.deepEqual(pyScore(src), [2, 1, 2]);
+});
+
+test('py: MBCC traverses a call-backed attribute operand', () => {
+  const src = 'def f(factory):\n    return factory and factory().value\n';
+  assert.deepEqual(pyScore(src), [2, 1, 2]);
+});
+
 test('py: ternary is structural, and nests', () => {
   // outer ternary +1, inner ternary +2. Total 3.
   assert.deepEqual(pyScore('def f(a, b):\n    return 1 if a else (2 if b else 3)\n'), [3, 3, 3]);
@@ -160,6 +220,81 @@ test('py: a lambda or nested def adds nesting but no increment', () => {
   const src = 'def outer(a):\n    def inner(b):\n        if b:\n            return 1\n        return 0\n    return inner(a)\n';
   assert.deepEqual(pyScore(src, 'outer'), [1, 2, 2]);
   assert.deepEqual(pyScore(src, 'inner'), [2, 1, 1]);
+});
+
+test('py: a lambda body visits an independent boolean run', () => {
+  const src = 'def f():\n    return lambda left, right: left and right\n';
+  assert.deepEqual(pyScore(src), [2, 1, 1]);
+});
+
+test('py: a lambda body visits an ordered boolean run', () => {
+  const src = 'def f():\n    return lambda item: item and item.value\n';
+  assert.deepEqual(pyScore(src), [2, 1, 2]);
+});
+
+test('py: nested lambdas add two nesting levels to a ternary', () => {
+  const src = 'def f():\n    return lambda: lambda value: 1 if value else 0\n';
+  assert.deepEqual(pyScore(src), [2, 3, 3]);
+});
+
+test('py: a lambda inside an if adds nesting to its ternary body', () => {
+  const src = 'def f(flag):\n    if flag:\n        choose = lambda value: 1 if value else 0\n    return choose\n';
+  assert.deepEqual(pyScore(src), [3, 4, 4]);
+});
+
+test('py: a lambda inside a loop adds nesting to its ternary body', () => {
+  const src = 'def f(xs):\n    for item in xs:\n        choose = lambda value: 1 if value else 0\n    return choose\n';
+  assert.deepEqual(pyScore(src), [3, 4, 4]);
+});
+
+test('py: a lambda inside an exception handler adds nesting to its ternary body', () => {
+  const src = 'def f():\n    try:\n        load()\n    except ValueError:\n        choose = lambda value: 1 if value else 0\n    return choose\n';
+  assert.deepEqual(pyScore(src), [3, 4, 4]);
+});
+
+test('py: an if in a nested class is visited one level deeper', () => {
+  const src = 'def outer(flag):\n    class C:\n        if flag:\n            value = 1\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 2, 2]);
+});
+
+test('py: a for loop in a nested class is visited one level deeper', () => {
+  const src = 'def outer(xs):\n    class C:\n        for value in xs:\n            item = value\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 2, 2]);
+});
+
+test('py: a while loop in a nested class is visited one level deeper', () => {
+  const src = 'def outer(flag):\n    class C:\n        while flag:\n            value = 1\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 2, 2]);
+});
+
+test('py: an except clause in a nested class is visited one level deeper', () => {
+  const src = 'def outer():\n    class C:\n        try:\n            value = load()\n        except ValueError:\n            value = None\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 2, 2]);
+});
+
+test('py: a match in a nested class is visited one level deeper', () => {
+  const src = 'def outer(value):\n    class C:\n        match value:\n            case 1:\n                result = True\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 2, 2]);
+});
+
+test('py: a ternary in a nested class is visited one level deeper', () => {
+  const src = 'def outer(flag):\n    class C:\n        value = 1 if flag else 0\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 2, 2]);
+});
+
+test('py: a boolean run in a nested class is visited', () => {
+  const src = 'def outer(left, right):\n    class C:\n        value = left and right\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 1, 1]);
+});
+
+test('py: a lambda in a nested class adds another nesting level', () => {
+  const src = 'def outer():\n    class C:\n        choose = lambda x: 1 if x else 0\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 3, 3]);
+});
+
+test('py: a method in a nested class adds another nesting level', () => {
+  const src = 'def outer():\n    class C:\n        def choose(self, value):\n            if value:\n                return 1\n            return 0\n    return C\n';
+  assert.deepEqual(pyScore(src, 'outer'), [1, 3, 3]);
 });
 
 test('py: comprehensions cost nothing here, while cyclomatic counts each clause', () => {
@@ -214,10 +349,80 @@ test('ts: a chain stops being exclusive the moment one branch tests a different 
   assert.deepEqual(tsScore(src), [4, 3, 6]);
 });
 
+test('ts: a top-level ternary is structural', () => {
+  const src = 'function f(flag) {\n  return flag ? 1 : 0;\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: a nested ternary gains a nesting charge', () => {
+  const src = 'function f(first, second) {\n  return first ? 1 : second ? 2 : 3;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 3, 3]);
+});
+
+test('ts: a ternary inside an if gains a nesting charge', () => {
+  const src = 'function f(run, flag) {\n  if (run) {\n    return flag ? 1 : 0;\n  }\n  return 0;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 3, 3]);
+});
+
+test('ts: a ternary inside a loop gains a nesting charge', () => {
+  const src = 'function f(items, flag) {\n  for (const item of items) {\n    result = flag ? item : null;\n  }\n  return result;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 3, 3]);
+});
+
+test('ts: a ternary inside a nested class gains a nesting charge', () => {
+  const src = 'function f(flag) {\n  class C {\n    value = flag ? 1 : 0;\n  }\n  return C;\n}\n';
+  assert.deepEqual(tsScore(src), [1, 2, 2]);
+});
+
+test('ts: ternary children include a boolean condition', () => {
+  const src = 'function f(left, right) {\n  return left && right ? 1 : 0;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 2, 2]);
+});
+
+test('ts: ternary children include a boolean consequence', () => {
+  const src = 'function f(flag, left, right) {\n  return flag ? left && right : false;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 2, 2]);
+});
+
+test('ts: ternary children include a boolean alternative', () => {
+  const src = 'function f(flag, left, right) {\n  return flag ? true : left && right;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 2, 2]);
+});
+
+test('ts: ternary children include nested decisions in both branches', () => {
+  const src = 'function f(first, second, third) {\n  return first ? second ? 1 : 2 : third ? 3 : 4;\n}\n';
+  assert.deepEqual(tsScore(src), [4, 5, 5]);
+});
+
+test('ts: ternary children carry nesting into an arrow body', () => {
+  const src = 'function f(flag, inner) {\n  return flag ? (() => inner ? 1 : 0) : null;\n}\n';
+  assert.deepEqual(tsScore(src, 'f'), [2, 4, 4]);
+});
+
 test('ts: a flat switch costs 1 whatever the number of cases', () => {
   const cases = Array.from({ length: 12 }, (_, i) => `    case ${i}: return ${i};`).join('\n');
   const src = `function f(x) {\n  switch (x) {\n${cases}\n    default: return -1;\n  }\n}\n`;
   assert.deepEqual(tsScore(src), [13, 1, 1]);
+});
+
+test('ts: a single-case switch is structural', () => {
+  const src = 'function f(value) {\n  switch (value) {\n    case 1: return true;\n  }\n  return false;\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: a switch inside an if gains a nesting charge', () => {
+  const src = 'function f(run, value) {\n  if (run) {\n    switch (value) {\n      case 1: return true;\n    }\n  }\n  return false;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 3, 3]);
+});
+
+test('ts: a switch inside a loop gains a nesting charge', () => {
+  const src = 'function f(values) {\n  for (const value of values) {\n    switch (value) {\n      case 1: return true;\n    }\n  }\n  return false;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 3, 3]);
+});
+
+test('ts: a switch inside a nested class gains a nesting charge', () => {
+  const src = 'function f(value) {\n  class C {\n    pick() {\n      switch (value) {\n        case 1: return true;\n      }\n      return false;\n    }\n  }\n  return C;\n}\n';
+  assert.deepEqual(tsScore(src, 'f'), [1, 3, 3]);
 });
 
 test('ts: loops, catch, ternary, and labeled jumps', () => {
@@ -227,6 +432,86 @@ test('ts: loops, catch, ternary, and labeled jumps', () => {
   // labeled continue is +1, plain break is nothing. outer for +1, inner for +2, if +3, continue LABEL +1 = 7.
   const labeled = 'function f(m) {\n  outer: for (const a of m) {\n    for (const b of a) {\n      if (b) { continue outer; }\n      break;\n    }\n  }\n}\n';
   assert.deepEqual(tsScore(labeled), [4, 7, 7]);
+});
+
+test('ts: plain continue adds no fundamental complexity', () => {
+  const src = 'function f(x) {\n  while (x) {\n    continue;\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: labeled continue adds fundamental complexity to a while loop', () => {
+  const src = 'function f(x) {\n  outer: while (x) {\n    continue outer;\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 2, 2]);
+});
+
+test('ts: labeled continue adds fundamental complexity to a classic for loop', () => {
+  const src = 'function f(x) {\n  outer: for (; x; x--) {\n    continue outer;\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 2, 2]);
+});
+
+test('ts: labeled continue adds fundamental complexity to a for-of loop', () => {
+  const src = 'function f(xs) {\n  outer: for (const x of xs) {\n    continue outer;\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 2, 2]);
+});
+
+test('ts: labeled continue adds fundamental complexity to a do loop', () => {
+  const src = 'function f(x) {\n  outer: do {\n    continue outer;\n  } while (x);\n}\n';
+  assert.deepEqual(tsScore(src), [2, 2, 2]);
+});
+
+test('ts: labeled continue remains fundamental inside a nested if', () => {
+  const src = 'function f(x, stop) {\n  outer: while (x) {\n    if (stop) {\n      continue outer;\n    }\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [3, 4, 4]);
+});
+
+test('ts: plain continue remains free inside a nested if', () => {
+  const src = 'function f(x, stop) {\n  while (x) {\n    if (stop) {\n      continue;\n    }\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [3, 3, 3]);
+});
+
+test('ts: labeled continue remains fundamental inside a switch', () => {
+  const src = 'function f(x) {\n  outer: while (x) {\n    switch (x) {\n      case 1: continue outer;\n      default: x--;\n    }\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [3, 4, 4]);
+});
+
+test('ts: labeled continue remains fundamental inside try and finally', () => {
+  const src = 'function f(x) {\n  outer: while (x) {\n    try {\n      continue outer;\n    } finally {\n      x--;\n    }\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 2, 2]);
+});
+
+test('ts: a try without finally adds no finalizer complexity', () => {
+  const src = 'function f() {\n  try {\n    work();\n  } catch {\n    recover();\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: an empty finally adds no complexity', () => {
+  const src = 'function f() {\n  try {\n    work();\n  } finally {\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [1, 0, 0]);
+});
+
+test('ts: an if in finally is visited at the try nesting', () => {
+  const src = 'function f(done) {\n  try {\n    work();\n  } finally {\n    if (done) {\n      clean();\n    }\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: a loop in finally is visited at the try nesting', () => {
+  const src = 'function f(items) {\n  try {\n    work();\n  } finally {\n    for (const item of items) {\n      clean(item);\n    }\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: a ternary in finally is visited at the try nesting', () => {
+  const src = 'function f(done) {\n  try {\n    work();\n  } finally {\n    result = done ? 1 : 0;\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: finally preserves an enclosing decision nesting level', () => {
+  const src = 'function f(run, left, right) {\n  if (run) {\n    try {\n      work();\n    } finally {\n      result = left && right;\n    }\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [3, 2, 2]);
+});
+
+test('ts: each labeled continue adds fundamental complexity', () => {
+  const src = 'function f(x, skip) {\n  outer: while (x) {\n    if (skip) {\n      continue outer;\n    }\n    continue outer;\n  }\n}\n';
+  assert.deepEqual(tsScore(src), [3, 5, 5]);
 });
 
 test('ts: whitepaper boolean runs, and ?? costs nothing', () => {
@@ -244,6 +529,41 @@ test('ts: MBCC with this-rooted member access and calls', () => {
   assert.deepEqual(tsScore('function f(xs) {\n  return xs && xs.length > 0 && check(xs);\n}\n'), [3, 1, 3]);
   // this.x && this.x.y inside a method
   assert.deepEqual(tsScore('class C {\n  ok() {\n    return this.x && this.x.y;\n  }\n}\n', 'ok'), [2, 1, 2]);
+});
+
+test('ts: MBCC resolves a subscript to its earlier array root', () => {
+  const src = 'function f(items) {\n  return items && items[0];\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 2]);
+});
+
+test('ts: MBCC resolves nested subscripts to their earlier array root', () => {
+  const src = 'function f(matrix) {\n  return matrix && matrix[0][0];\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 2]);
+});
+
+test('ts: MBCC stops when a non-null member unwraps to a binary expression', () => {
+  const src = 'function f(user) {\n  return user && user!.profile;\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: MBCC stops when a non-null subscript unwraps to a binary expression', () => {
+  const src = 'function f(items) {\n  return items && items![0];\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 1]);
+});
+
+test('ts: MBCC resolves a this-rooted subscript', () => {
+  const src = 'class C {\n  ok() {\n    return this.items && this.items[0];\n  }\n}\n';
+  assert.deepEqual(tsScore(src, 'ok'), [2, 1, 2]);
+});
+
+test('ts: MBCC resolves a member after a subscript to its earlier root', () => {
+  const src = 'function f(items) {\n  return items && items[0] && items[0].name;\n}\n';
+  assert.deepEqual(tsScore(src), [3, 1, 3]);
+});
+
+test('ts: MBCC traverses a call-backed member operand', () => {
+  const src = 'function f(factory) {\n  return factory && factory().value;\n}\n';
+  assert.deepEqual(tsScore(src), [2, 1, 2]);
 });
 
 test('ts: arrows add nesting but no increment; expression-bodied arrow with a ternary', () => {

@@ -45,6 +45,12 @@ export interface ScriptExtraction {
 const SCRIPT_TAG = /<script\b([^>]*)>/gi;
 const SCRIPT_END = /<\/script\s*>/gi;
 
+interface SourceBlock {
+  start: number;
+  end: number;
+  lang: ScriptLang;
+}
+
 function langOf(attributes: string): ScriptLang {
   const m = /\blang\s*=\s*["']?\s*([a-z]+)/i.exec(attributes);
   const value = m?.[1]?.toLowerCase();
@@ -72,13 +78,8 @@ export function isSingleFileComponent(relativePath: string): boolean {
   return /\.(vue|svelte)$/i.test(relativePath);
 }
 
-/**
- * The script blocks of a single-file component. Returns undefined when the
- * file has no script block at all (a template-only component), so the
- * caller can treat every line as outside.
- */
-export function extractScript(text: string): ScriptExtraction | undefined {
-  const blocks: Array<{ start: number; end: number; lang: ScriptLang }> = [];
+function findScriptBlocks(text: string): SourceBlock[] {
+  const blocks: SourceBlock[] = [];
   SCRIPT_TAG.lastIndex = 0;
   let open: RegExpExecArray | null;
   while ((open = SCRIPT_TAG.exec(text)) !== null) {
@@ -91,35 +92,80 @@ export function extractScript(text: string): ScriptExtraction | undefined {
     blocks.push({ start: contentStart, end: close.index, lang: langOf(open[1] ?? '') });
     SCRIPT_TAG.lastIndex = close.index + close[0].length;
   }
+  return blocks;
+}
+
+function sourceWithOnlyBlocks(text: string, blocks: SourceBlock[]): string {
+  const chars: string[] = Array.from(text, (c) => (c === "\n" || c === "\r" ? c : " "));
+  for (const block of blocks) {
+    copyBlock(text, chars, block);
+  }
+  return chars.join('');
+}
+
+function copyBlock(text: string, chars: string[], block: SourceBlock): void {
+  for (let index = block.start; index < block.end; index += 1) {
+    chars[index] = text[index] as string;
+  }
+}
+
+function contentStartsOnNextLine(text: string, offset: number): boolean {
+  return text[offset] === '\n' || (text[offset] === '\r' && text[offset + 1] === '\n');
+}
+
+function scriptBlockLines(text: string, blocks: SourceBlock[]): { blocks: ScriptBlock[]; inside: Set<number> } {
+  const inside = new Set<number>();
+  const out: ScriptBlock[] = [];
+  for (const block of blocks) {
+    const contentLine = lineAt(text, block.start);
+    const startLine = contentStartsOnNextLine(text, block.start) ? contentLine + 1 : contentLine;
+    const endLine = lineAt(text, Math.max(block.start, block.end - 1));
+    addInsideLines(inside, startLine, endLine);
+    out.push({ startLine, endLine, lang: block.lang });
+  }
+  return { blocks: out, inside };
+}
+
+function addInsideLines(inside: Set<number>, startLine: number, endLine: number): void {
+  for (let line = startLine; line <= endLine; line += 1) {
+    inside.add(line);
+  }
+}
+
+function outsideLines(totalLines: number, inside: Set<number>): Set<number> {
+  const outside = new Set<number>();
+  for (let line = 1; line <= totalLines; line += 1) {
+    if (!inside.has(line)) {
+      outside.add(line);
+    }
+  }
+  return outside;
+}
+
+function scriptLanguage(blocks: ScriptBlock[]): ScriptLang {
+  if (blocks.some((block) => block.lang === 'tsx')) {
+    return 'tsx';
+  }
+  if (blocks.some((block) => block.lang === 'typescript')) {
+    return 'typescript';
+  }
+  return 'javascript';
+}
+
+/**
+ * The script blocks of a single-file component. Returns undefined when the
+ * file has no script block at all (a template-only component), so the
+ * caller can treat every line as outside.
+ */
+export function extractScript(text: string): ScriptExtraction | undefined {
+  const blocks = findScriptBlocks(text);
   if (blocks.length === 0) {
     return undefined;
   }
-  const chars: string[] = Array.from(text, (c) => (c === "\n" || c === "\r" ? c : " "));
-  for (const b of blocks) {
-    for (let i = b.start; i < b.end; i += 1) {
-      chars[i] = text[i] as string;
-    }
-  }
-  const source = chars.join('');
+  const source = sourceWithOnlyBlocks(text, blocks);
   const totalLines = text.split('\n').length;
-  const inside = new Set<number>();
-  const out: ScriptBlock[] = [];
-  for (const b of blocks) {
-    // The content begins right after `>`; if that is the end of the tag's
-    // line, the first content line is the next one.
-    const startLine = text[b.start] === '\n' || (text[b.start] === '\r' && text[b.start + 1] === '\n') ? lineAt(text, b.start) + 1 : lineAt(text, b.start);
-    const endLine = lineAt(text, Math.max(b.start, b.end - 1));
-    for (let l = startLine; l <= endLine; l += 1) {
-      inside.add(l);
-    }
-    out.push({ startLine, endLine, lang: b.lang });
-  }
-  const outside = new Set<number>();
-  for (let l = 1; l <= totalLines; l += 1) {
-    if (!inside.has(l)) {
-      outside.add(l);
-    }
-  }
-  const lang: ScriptLang = out.some((b) => b.lang === 'tsx') ? 'tsx' : out.some((b) => b.lang === 'typescript') ? 'typescript' : 'javascript';
-  return { source, lang, blocks: out, outside, lines: totalLines };
+  const lines = scriptBlockLines(text, blocks);
+  const outside = outsideLines(totalLines, lines.inside);
+  const lang = scriptLanguage(lines.blocks);
+  return { source, lang, blocks: lines.blocks, outside, lines: totalLines };
 }

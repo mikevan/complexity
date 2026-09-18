@@ -1,0 +1,1517 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "id": "mu792j2k-ayxugm",
+      "path": "src/typescript.ts",
+      "name": "visit",
+      "startLine": 132,
+      "before": 20,
+      "measure": "mbcc",
+      "limit": 5,
+      "by": "vange",
+      "startedAt": "2026-09-18T17:46:17.996Z",
+      "rounds": 1,
+      "status": "sent",
+      "snapshot": {
+        "path": "src/typescript.ts",
+        "name": "visit",
+        "startLine": 132,
+        "endLine": 190,
+        "complexity": 23,
+        "campbell": 19,
+        "mbcc": 20,
+        "siblings": [
+          {
+            "name": "booleanParts",
+            "startLine": 48,
+            "complexity": 6,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "isImpure",
+            "startLine": 60,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "memberRoot",
+            "startLine": 61,
+            "complexity": 14,
+            "campbell": 13,
+            "mbcc": 20
+          },
+          {
+            "name": "identifierName",
+            "startLine": 71,
+            "complexity": 3,
+            "campbell": 2,
+            "mbcc": 3
+          },
+          {
+            "name": "stopsAt",
+            "startLine": 72,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 73,
+            "complexity": 1,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "isConstant",
+            "startLine": 79,
+            "complexity": 6,
+            "campbell": 6,
+            "mbcc": 8
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 84,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "isDiscriminator",
+            "startLine": 93,
+            "complexity": 4,
+            "campbell": 2,
+            "mbcc": 5
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 98,
+            "complexity": 16,
+            "campbell": 17,
+            "mbcc": 19
+          },
+          {
+            "name": "visit",
+            "startLine": 132,
+            "complexity": 23,
+            "campbell": 19,
+            "mbcc": 20
+          },
+          {
+            "name": "children",
+            "startLine": 192,
+            "complexity": 3,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "visitIfChain",
+            "startLine": 205,
+            "complexity": 10,
+            "campbell": 14,
+            "mbcc": 14
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 231,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 232,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "visitCondition",
+            "startLine": 243,
+            "complexity": 7,
+            "campbell": 7,
+            "mbcc": 8
+          },
+          {
+            "name": "visitCatch",
+            "startLine": 258,
+            "complexity": 2,
+            "campbell": 2,
+            "mbcc": 2
+          },
+          {
+            "name": "calledNames",
+            "startLine": 268,
+            "complexity": 2,
+            "campbell": 17,
+            "mbcc": 21
+          },
+          {
+            "name": "visit",
+            "startLine": 270,
+            "complexity": 8,
+            "campbell": 12,
+            "mbcc": 15
+          },
+          {
+            "name": "cyclomaticOf",
+            "startLine": 301,
+            "complexity": 2,
+            "campbell": 14,
+            "mbcc": 15
+          },
+          {
+            "name": "visit",
+            "startLine": 306,
+            "complexity": 16,
+            "campbell": 9,
+            "mbcc": 10
+          },
+          {
+            "name": "measureTypeScript",
+            "startLine": 340,
+            "complexity": 4,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 350,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "mu794ivk-e9ffdi",
+      "path": "src/python.ts",
+      "name": "exclusiveKey",
+      "startLine": 99,
+      "before": 31,
+      "measure": "mbcc",
+      "limit": 5,
+      "by": "vange",
+      "startedAt": "2026-09-18T17:47:51.056Z",
+      "rounds": 2,
+      "status": "sent",
+      "snapshot": {
+        "path": "src/python.ts",
+        "name": "exclusiveKey",
+        "startLine": 99,
+        "endLine": 137,
+        "complexity": 21,
+        "campbell": 27,
+        "mbcc": 31,
+        "siblings": [
+          {
+            "name": "booleanParts",
+            "startLine": 49,
+            "complexity": 5,
+            "campbell": 3,
+            "mbcc": 3
+          },
+          {
+            "name": "isImpure",
+            "startLine": 58,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "memberRoot",
+            "startLine": 59,
+            "complexity": 10,
+            "campbell": 11,
+            "mbcc": 15
+          },
+          {
+            "name": "identifierName",
+            "startLine": 69,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "stopsAt",
+            "startLine": 70,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 71,
+            "complexity": 1,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "isConstant",
+            "startLine": 77,
+            "complexity": 11,
+            "campbell": 10,
+            "mbcc": 17
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 82,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 85,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "isDiscriminator",
+            "startLine": 94,
+            "complexity": 3,
+            "campbell": 2,
+            "mbcc": 4
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 99,
+            "complexity": 21,
+            "campbell": 27,
+            "mbcc": 31
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 117,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 118,
+            "complexity": 2,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "visit",
+            "startLine": 142,
+            "complexity": 13,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "children",
+            "startLine": 181,
+            "complexity": 3,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "visitIf",
+            "startLine": 190,
+            "complexity": 10,
+            "campbell": 16,
+            "mbcc": 16
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 215,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 216,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "visitCondition",
+            "startLine": 227,
+            "complexity": 6,
+            "campbell": 6,
+            "mbcc": 6
+          },
+          {
+            "name": "visitLoop",
+            "startLine": 242,
+            "complexity": 3,
+            "campbell": 3,
+            "mbcc": 3
+          },
+          {
+            "name": "visitTry",
+            "startLine": 255,
+            "complexity": 10,
+            "campbell": 9,
+            "mbcc": 6
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 264,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 266,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "visitMatch",
+            "startLine": 271,
+            "complexity": 4,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "calledNames",
+            "startLine": 284,
+            "complexity": 2,
+            "campbell": 18,
+            "mbcc": 17
+          },
+          {
+            "name": "visit",
+            "startLine": 286,
+            "complexity": 9,
+            "campbell": 13,
+            "mbcc": 12
+          },
+          {
+            "name": "cyclomaticOf",
+            "startLine": 317,
+            "complexity": 2,
+            "campbell": 11,
+            "mbcc": 12
+          },
+          {
+            "name": "visit",
+            "startLine": 322,
+            "complexity": 16,
+            "campbell": 7,
+            "mbcc": 8
+          },
+          {
+            "name": "measurePython",
+            "startLine": 358,
+            "complexity": 4,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 368,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          }
+        ]
+      },
+      "measuredAt": "2026-09-18T17:51:51.999Z",
+      "pieces": [
+        {
+          "name": "exclusiveKey",
+          "startLine": 99,
+          "endLine": 137,
+          "complexity": 21,
+          "campbell": 27,
+          "mbcc": 31,
+          "over": 26,
+          "kind": "original"
+        },
+        {
+          "name": "visit",
+          "startLine": 286,
+          "endLine": 304,
+          "complexity": 9,
+          "campbell": 13,
+          "mbcc": 12,
+          "over": 7,
+          "kind": "changed"
+        },
+        {
+          "name": "exclusiveKey",
+          "startLine": 71,
+          "endLine": 71,
+          "complexity": 1,
+          "campbell": 1,
+          "mbcc": 1,
+          "over": 0,
+          "kind": "original"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 82,
+          "endLine": 82,
+          "complexity": 2,
+          "campbell": 1,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 85,
+          "endLine": 85,
+          "complexity": 2,
+          "campbell": 1,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 117,
+          "endLine": 117,
+          "complexity": 1,
+          "campbell": 0,
+          "mbcc": 0,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 118,
+          "endLine": 118,
+          "complexity": 2,
+          "campbell": 0,
+          "mbcc": 0,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "visit",
+          "startLine": 142,
+          "endLine": 179,
+          "complexity": 13,
+          "campbell": 5,
+          "mbcc": 5,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 215,
+          "endLine": 215,
+          "complexity": 1,
+          "campbell": 0,
+          "mbcc": 0,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 264,
+          "endLine": 264,
+          "complexity": 1,
+          "campbell": 0,
+          "mbcc": 0,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 266,
+          "endLine": 266,
+          "complexity": 1,
+          "campbell": 0,
+          "mbcc": 0,
+          "over": 0,
+          "kind": "changed"
+        }
+      ],
+      "tests": {
+        "passed": 50,
+        "failed": 0,
+        "errors": 0
+      },
+      "outcome": "Not done. 11 pieces: exclusiveKey() 31, visit() 12, exclusiveKey() 1, <anonymous>() 2, <anonymous>() 2, <anonymous>() 0, <anonymous>() 0, visit() 5, <anonymous>() 0, <anonymous>() 0, <anonymous>() 0. 2 pieces are still over your limit of 5. All 50 tests pass. Your call."
+    },
+    {
+      "id": "mu79grhs-q0dylk",
+      "path": "src/python.ts",
+      "name": "visit",
+      "startLine": 366,
+      "before": 8,
+      "measure": "mbcc",
+      "limit": 5,
+      "by": "vange",
+      "startedAt": "2026-09-18T17:57:22.096Z",
+      "rounds": 1,
+      "status": "sent",
+      "snapshot": {
+        "path": "src/python.ts",
+        "name": "visit",
+        "startLine": 366,
+        "endLine": 392,
+        "complexity": 16,
+        "campbell": 7,
+        "mbcc": 8,
+        "siblings": [
+          {
+            "name": "booleanParts",
+            "startLine": 49,
+            "complexity": 5,
+            "campbell": 3,
+            "mbcc": 3
+          },
+          {
+            "name": "isImpure",
+            "startLine": 58,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "memberRoot",
+            "startLine": 59,
+            "complexity": 10,
+            "campbell": 11,
+            "mbcc": 15
+          },
+          {
+            "name": "identifierName",
+            "startLine": 69,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "stopsAt",
+            "startLine": 70,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 71,
+            "complexity": 1,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "isConstant",
+            "startLine": 77,
+            "complexity": 11,
+            "campbell": 10,
+            "mbcc": 17
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 82,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 85,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "isDiscriminator",
+            "startLine": 94,
+            "complexity": 3,
+            "campbell": 2,
+            "mbcc": 4
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 99,
+            "complexity": 4,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "parenthesizedExclusiveKey",
+            "startLine": 112,
+            "complexity": 2,
+            "campbell": 2,
+            "mbcc": 2
+          },
+          {
+            "name": "booleanExclusiveKey",
+            "startLine": 117,
+            "complexity": 4,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "matchingExclusiveKey",
+            "startLine": 128,
+            "complexity": 3,
+            "campbell": 2,
+            "mbcc": 2
+          },
+          {
+            "name": "comparisonExclusiveKey",
+            "startLine": 135,
+            "complexity": 6,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 136,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 137,
+            "complexity": 2,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "equalityExclusiveKey",
+            "startLine": 152,
+            "complexity": 3,
+            "campbell": 2,
+            "mbcc": 2
+          },
+          {
+            "name": "isDiscriminatorConstantPair",
+            "startLine": 162,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "isMembershipComparison",
+            "startLine": 166,
+            "complexity": 3,
+            "campbell": 1,
+            "mbcc": 3
+          },
+          {
+            "name": "visit",
+            "startLine": 173,
+            "complexity": 13,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "children",
+            "startLine": 212,
+            "complexity": 3,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "visitIf",
+            "startLine": 221,
+            "complexity": 10,
+            "campbell": 16,
+            "mbcc": 16
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 246,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 247,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "visitCondition",
+            "startLine": 258,
+            "complexity": 6,
+            "campbell": 6,
+            "mbcc": 6
+          },
+          {
+            "name": "visitLoop",
+            "startLine": 273,
+            "complexity": 3,
+            "campbell": 3,
+            "mbcc": 3
+          },
+          {
+            "name": "visitTry",
+            "startLine": 286,
+            "complexity": 10,
+            "campbell": 9,
+            "mbcc": 6
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 295,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 297,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "visitMatch",
+            "startLine": 302,
+            "complexity": 4,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "calledName",
+            "startLine": 314,
+            "complexity": 4,
+            "campbell": 3,
+            "mbcc": 3
+          },
+          {
+            "name": "pythonMethodName",
+            "startLine": 330,
+            "complexity": 4,
+            "campbell": 3,
+            "mbcc": 3
+          },
+          {
+            "name": "visitCalledNames",
+            "startLine": 334,
+            "complexity": 4,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "calledNames",
+            "startLine": 347,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "cyclomaticOf",
+            "startLine": 361,
+            "complexity": 2,
+            "campbell": 11,
+            "mbcc": 12
+          },
+          {
+            "name": "visit",
+            "startLine": 366,
+            "complexity": 16,
+            "campbell": 7,
+            "mbcc": 8
+          },
+          {
+            "name": "measurePython",
+            "startLine": 402,
+            "complexity": 4,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 412,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "mu7a7458-f10a70",
+      "path": "src/sfc.ts",
+      "name": "extractScript",
+      "startLine": 80,
+      "before": 25,
+      "measure": "mbcc",
+      "limit": 5,
+      "by": "vange",
+      "startedAt": "2026-09-18T18:17:51.548Z",
+      "rounds": 1,
+      "status": "sent",
+      "snapshot": {
+        "path": "src/sfc.ts",
+        "name": "extractScript",
+        "startLine": 80,
+        "endLine": 125,
+        "complexity": 16,
+        "campbell": 23,
+        "mbcc": 25,
+        "siblings": [
+          {
+            "name": "langOf",
+            "startLine": 48,
+            "complexity": 4,
+            "campbell": 3,
+            "mbcc": 3
+          },
+          {
+            "name": "lineAt",
+            "startLine": 60,
+            "complexity": 4,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "isSingleFileComponent",
+            "startLine": 71,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "extractScript",
+            "startLine": 80,
+            "complexity": 16,
+            "campbell": 23,
+            "mbcc": 25
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 97,
+            "complexity": 3,
+            "campbell": 2,
+            "mbcc": 2
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 123,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 123,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "mu7acks8-s2zika",
+      "path": "src/typescript.ts",
+      "name": "exclusiveKey",
+      "startLine": 98,
+      "before": 19,
+      "measure": "mbcc",
+      "limit": 5,
+      "by": "vange",
+      "startedAt": "2026-09-18T18:22:06.392Z",
+      "rounds": 1,
+      "status": "sent",
+      "snapshot": {
+        "path": "src/typescript.ts",
+        "name": "exclusiveKey",
+        "startLine": 98,
+        "endLine": 127,
+        "complexity": 16,
+        "campbell": 17,
+        "mbcc": 19,
+        "siblings": [
+          {
+            "name": "booleanParts",
+            "startLine": 48,
+            "complexity": 6,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "isImpure",
+            "startLine": 60,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "memberRoot",
+            "startLine": 61,
+            "complexity": 14,
+            "campbell": 13,
+            "mbcc": 20
+          },
+          {
+            "name": "identifierName",
+            "startLine": 71,
+            "complexity": 3,
+            "campbell": 2,
+            "mbcc": 3
+          },
+          {
+            "name": "stopsAt",
+            "startLine": 72,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 73,
+            "complexity": 1,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "isConstant",
+            "startLine": 79,
+            "complexity": 6,
+            "campbell": 6,
+            "mbcc": 8
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 84,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "isDiscriminator",
+            "startLine": 93,
+            "complexity": 4,
+            "campbell": 2,
+            "mbcc": 5
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 98,
+            "complexity": 16,
+            "campbell": 17,
+            "mbcc": 19
+          },
+          {
+            "name": "visit",
+            "startLine": 132,
+            "complexity": 15,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "isNestedScope",
+            "startLine": 176,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "visitLoop",
+            "startLine": 180,
+            "complexity": 2,
+            "campbell": 2,
+            "mbcc": 2
+          },
+          {
+            "name": "visitSwitchClauses",
+            "startLine": 188,
+            "complexity": 4,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "visitBinaryExpression",
+            "startLine": 196,
+            "complexity": 3,
+            "campbell": 3,
+            "mbcc": 3
+          },
+          {
+            "name": "visitLabeledJump",
+            "startLine": 206,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "children",
+            "startLine": 212,
+            "complexity": 3,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "visitIfChain",
+            "startLine": 225,
+            "complexity": 10,
+            "campbell": 14,
+            "mbcc": 14
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 251,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 252,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "visitCondition",
+            "startLine": 263,
+            "complexity": 7,
+            "campbell": 7,
+            "mbcc": 8
+          },
+          {
+            "name": "visitCatch",
+            "startLine": 278,
+            "complexity": 2,
+            "campbell": 2,
+            "mbcc": 2
+          },
+          {
+            "name": "calledNames",
+            "startLine": 288,
+            "complexity": 2,
+            "campbell": 17,
+            "mbcc": 21
+          },
+          {
+            "name": "visit",
+            "startLine": 290,
+            "complexity": 8,
+            "campbell": 12,
+            "mbcc": 15
+          },
+          {
+            "name": "cyclomaticOf",
+            "startLine": 321,
+            "complexity": 2,
+            "campbell": 14,
+            "mbcc": 15
+          },
+          {
+            "name": "visit",
+            "startLine": 326,
+            "complexity": 16,
+            "campbell": 9,
+            "mbcc": 10
+          },
+          {
+            "name": "measureTypeScript",
+            "startLine": 360,
+            "complexity": 4,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 370,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "mu792mwx-3w3v18",
+      "path": "src/typescript.ts",
+      "name": "visit",
+      "startLine": 132,
+      "before": 20,
+      "measure": "mbcc",
+      "limit": 5,
+      "by": "vange",
+      "startedAt": "2026-09-18T17:46:22.977Z",
+      "rounds": 2,
+      "status": "sent",
+      "snapshot": {
+        "path": "src/typescript.ts",
+        "name": "visit",
+        "startLine": 132,
+        "endLine": 190,
+        "complexity": 23,
+        "campbell": 19,
+        "mbcc": 20,
+        "siblings": [
+          {
+            "name": "booleanParts",
+            "startLine": 48,
+            "complexity": 6,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "isImpure",
+            "startLine": 60,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "memberRoot",
+            "startLine": 61,
+            "complexity": 14,
+            "campbell": 13,
+            "mbcc": 20
+          },
+          {
+            "name": "identifierName",
+            "startLine": 71,
+            "complexity": 3,
+            "campbell": 2,
+            "mbcc": 3
+          },
+          {
+            "name": "stopsAt",
+            "startLine": 72,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 73,
+            "complexity": 1,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "isConstant",
+            "startLine": 79,
+            "complexity": 6,
+            "campbell": 6,
+            "mbcc": 8
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 84,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 2
+          },
+          {
+            "name": "isDiscriminator",
+            "startLine": 93,
+            "complexity": 4,
+            "campbell": 2,
+            "mbcc": 5
+          },
+          {
+            "name": "exclusiveKey",
+            "startLine": 98,
+            "complexity": 16,
+            "campbell": 17,
+            "mbcc": 19
+          },
+          {
+            "name": "visit",
+            "startLine": 132,
+            "complexity": 23,
+            "campbell": 19,
+            "mbcc": 20
+          },
+          {
+            "name": "children",
+            "startLine": 192,
+            "complexity": 3,
+            "campbell": 4,
+            "mbcc": 4
+          },
+          {
+            "name": "visitIfChain",
+            "startLine": 205,
+            "complexity": 10,
+            "campbell": 14,
+            "mbcc": 14
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 231,
+            "complexity": 1,
+            "campbell": 0,
+            "mbcc": 0
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 232,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          },
+          {
+            "name": "visitCondition",
+            "startLine": 243,
+            "complexity": 7,
+            "campbell": 7,
+            "mbcc": 8
+          },
+          {
+            "name": "visitCatch",
+            "startLine": 258,
+            "complexity": 2,
+            "campbell": 2,
+            "mbcc": 2
+          },
+          {
+            "name": "calledNames",
+            "startLine": 268,
+            "complexity": 2,
+            "campbell": 17,
+            "mbcc": 21
+          },
+          {
+            "name": "visit",
+            "startLine": 270,
+            "complexity": 8,
+            "campbell": 12,
+            "mbcc": 15
+          },
+          {
+            "name": "cyclomaticOf",
+            "startLine": 301,
+            "complexity": 2,
+            "campbell": 14,
+            "mbcc": 15
+          },
+          {
+            "name": "visit",
+            "startLine": 306,
+            "complexity": 16,
+            "campbell": 9,
+            "mbcc": 10
+          },
+          {
+            "name": "measureTypeScript",
+            "startLine": 340,
+            "complexity": 4,
+            "campbell": 5,
+            "mbcc": 5
+          },
+          {
+            "name": "<anonymous>",
+            "startLine": 350,
+            "complexity": 2,
+            "campbell": 1,
+            "mbcc": 1
+          }
+        ]
+      },
+      "measuredAt": "2026-09-18T18:24:32.952Z",
+      "pieces": [
+        {
+          "name": "visit",
+          "startLine": 321,
+          "endLine": 338,
+          "complexity": 8,
+          "campbell": 12,
+          "mbcc": 15,
+          "over": 10,
+          "kind": "original"
+        },
+        {
+          "name": "visit",
+          "startLine": 357,
+          "endLine": 385,
+          "complexity": 16,
+          "campbell": 9,
+          "mbcc": 10,
+          "over": 5,
+          "kind": "original"
+        },
+        {
+          "name": "exclusiveKey",
+          "startLine": 73,
+          "endLine": 73,
+          "complexity": 1,
+          "campbell": 1,
+          "mbcc": 1,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 84,
+          "endLine": 84,
+          "complexity": 2,
+          "campbell": 1,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "exclusiveKey",
+          "startLine": 98,
+          "endLine": 106,
+          "complexity": 3,
+          "campbell": 3,
+          "mbcc": 3,
+          "over": 0,
+          "kind": "changed"
+        },
+        {
+          "name": "parenthesizedExclusiveKey",
+          "startLine": 108,
+          "endLine": 111,
+          "complexity": 2,
+          "campbell": 2,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "binaryExclusiveKey",
+          "startLine": 113,
+          "endLine": 127,
+          "complexity": 6,
+          "campbell": 5,
+          "mbcc": 5,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "disjunctionExclusiveKey",
+          "startLine": 129,
+          "endLine": 133,
+          "complexity": 1,
+          "campbell": 1,
+          "mbcc": 1,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "matchingExclusiveKey",
+          "startLine": 135,
+          "endLine": 140,
+          "complexity": 3,
+          "campbell": 2,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "isEqualityOperator",
+          "startLine": 142,
+          "endLine": 144,
+          "complexity": 2,
+          "campbell": 1,
+          "mbcc": 1,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "equalityExclusiveKey",
+          "startLine": 146,
+          "endLine": 154,
+          "complexity": 3,
+          "campbell": 2,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "isDiscriminatorConstantPair",
+          "startLine": 156,
+          "endLine": 158,
+          "complexity": 2,
+          "campbell": 1,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "visit",
+          "startLine": 163,
+          "endLine": 205,
+          "complexity": 15,
+          "campbell": 4,
+          "mbcc": 4,
+          "over": 0,
+          "kind": "original"
+        },
+        {
+          "name": "isNestedScope",
+          "startLine": 207,
+          "endLine": 209,
+          "complexity": 2,
+          "campbell": 1,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "visitLoop",
+          "startLine": 211,
+          "endLine": 217,
+          "complexity": 2,
+          "campbell": 2,
+          "mbcc": 2,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "visitSwitchClauses",
+          "startLine": 219,
+          "endLine": 225,
+          "complexity": 4,
+          "campbell": 4,
+          "mbcc": 4,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "visitBinaryExpression",
+          "startLine": 227,
+          "endLine": 235,
+          "complexity": 3,
+          "campbell": 3,
+          "mbcc": 3,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "visitLabeledJump",
+          "startLine": 237,
+          "endLine": 241,
+          "complexity": 2,
+          "campbell": 1,
+          "mbcc": 1,
+          "over": 0,
+          "kind": "new"
+        },
+        {
+          "name": "<anonymous>",
+          "startLine": 282,
+          "endLine": 282,
+          "complexity": 1,
+          "campbell": 0,
+          "mbcc": 0,
+          "over": 0,
+          "kind": "changed"
+        }
+      ],
+      "tests": {
+        "passed": 50,
+        "failed": 0,
+        "errors": 0
+      },
+      "outcome": "Not done. 19 pieces: visit() 15, visit() 10, exclusiveKey() 1, <anonymous>() 2, exclusiveKey() 3, parenthesizedExclusiveKey() 2, binaryExclusiveKey() 5, disjunctionExclusiveKey() 1, matchingExclusiveKey() 2, isEqualityOperator() 1, equalityExclusiveKey() 2, isDiscriminatorConstantPair() 2, visit() 4, isNestedScope() 2, visitLoop() 2, visitSwitchClauses() 4, visitBinaryExpression() 3, visitLabeledJump() 1, <anonymous>() 0. 2 pieces are still over your limit of 5; visit() went from 20 to 10. All 50 tests pass. Your call."
+    }
+  ]
+}
