@@ -76,6 +76,20 @@ exists for.
 The charge is on the code, not on the reader: the sharpest reader alive
 still has to trace `m is not None and m.dues is not None` in order.
 
+What the rule cannot see is the wrapper. The scorer measures one method at a
+time from its own syntax tree, so `isDiscriminator(a) and isConstant(b)`
+costs two where it stands and costs one the moment it is moved into a named
+helper and called from there. The reader's work did not change; the caller's
+number did. On one method that is a small under-charge. On a refactor it is a
+hole, because it is a way to lower a number without lowering the tangle, and
+an assistant told to get a method under a limit will find it. Closing it
+inside the scorer would mean following calls, which is a different tool with
+its own class of wrong answers, so the scorer keeps the blind spot and
+UntangleIt carries the check: every comparison reports what the pieces come
+to together as well as what the worst piece comes to. Measured case, this
+library at 1.0.9: `exclusiveKey` in src/python.ts fell from 31 to 4, and the
+eight methods it became come to 24.
+
 ### Ordered branches
 
 In an `if` / `elif` / `else` chain whose branches test different facts, the
