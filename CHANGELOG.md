@@ -26,6 +26,16 @@ it measures one method at a time and a scorer that followed calls would be a
 different tool. docs/measures.md now says so, with the worked case, and
 UntangleIt 1.0.13 carries the check.
 
+## 1.0.12
+
+Line endings stop moving on their own.
+
+This library gained the `.gitattributes` that DeepTest and UntangleIt already
+had. Without it a settings file flipped its line endings on every release, six
+times in one day before this.
+
+No measure, scorer, or grammar changed in this release.
+
 ## 1.0.0
 
 Three measures per function (ways through, tangle by Campbell, tangle by MBCC) for Python and TypeScript / JavaScript, with the ordered-operand and ordered-branch rules as the MBCC paper states them (docs/mbcc-why-and-how.md). Tagged 1.0.0 with the toolkit; Java walkers are 1.1.
